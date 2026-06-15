@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIC / Temiz — The Complete Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#171715;--paper:#f3f3ef;--card:#fbfbf8;--line:#d9d8d1;--mute:#6b6a63;
+    --red:#bf242b;--teal:#2f6f5e;--amber:#a9761a;--long:#2f6f5e;--short:#bf242b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body{background:var(--paper);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.38;padding:30px 18px;display:flex;justify-content:center}
+  .doc{width:100%;max-width:920px}
+  .mono{font-family:'IBM Plex Mono',monospace}
+
+  header{border:2px solid var(--ink);background:var(--card);padding:20px 22px 18px}
+  .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--red)}
+  h1{font-family:'Anton',sans-serif;font-weight:400;font-size:50px;line-height:.86;text-transform:uppercase;margin:7px 0 0}
+  h1 .dim{color:var(--mute)}
+  .essence{font-size:11.5px;color:var(--ink);margin-top:11px;max-width:84ch;line-height:1.55;border-left:3px solid var(--teal);padding-left:12px}
+  .essence b{color:var(--ink)}
+  .credit{font-family:'IBM Plex Mono',monospace;font-size:8.5px;color:var(--mute);letter-spacing:.07em;margin-top:11px;text-transform:uppercase}
+
+  .partbar{display:flex;align-items:center;gap:12px;margin:22px 0 4px}
+  .partbar .pn{font-family:'Anton',sans-serif;font-size:13px;color:#fff;background:var(--ink);padding:4px 11px;letter-spacing:.05em;text-transform:uppercase}
+  .partbar .pt{font-family:'Anton',sans-serif;font-size:18px;text-transform:uppercase;letter-spacing:.03em}
+  .partbar .rule{flex:1;height:2px;background:var(--ink)}
+
+  section{margin-top:18px;break-inside:avoid}
+  .shead{display:flex;align-items:baseline;gap:10px;border-bottom:2px solid var(--ink);padding-bottom:5px;margin-bottom:10px}
+  .shead .num{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--red)}
+  .shead h2{font-family:'Anton',sans-serif;font-weight:400;font-size:18px;letter-spacing:.04em;text-transform:uppercase}
+  .shead .src{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--mute);letter-spacing:.05em;text-transform:uppercase}
+  p.lead{font-size:10.5px;color:var(--mute);line-height:1.48;margin-bottom:9px;max-width:90ch}p.lead b{color:var(--ink)}
+  .psych{margin-top:7px;font-size:9.5px;color:var(--mute);font-style:italic}.psych b{color:var(--ink);font-style:normal}
+
+  .spectrum{display:grid;grid-template-columns:140px 1fr;gap:11px}
+  .ladderbar{display:flex;flex-direction:column;border:1px solid var(--line)}
+  .rung{flex:1;padding:6px 9px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;display:flex;align-items:center;line-height:1.1;min-height:30px}
+  .regimes{display:flex;flex-direction:column;gap:4px}
+  .reg{border:1px solid var(--line);border-left:4px solid var(--rc);background:var(--card);padding:5px 11px}
+  .reg .t{font-weight:700;font-size:10.5px;text-transform:uppercase}.reg .d{font-size:9.5px;color:var(--mute);line-height:1.3}.reg .d b{color:var(--ink)}
+
+  .flow{display:flex;flex-wrap:wrap;border:1px solid var(--line);background:var(--card)}
+  .step{flex:1;min-width:110px;padding:9px 11px;border-right:1px solid var(--line)}.step:last-child{border-right:none}
+  .step .n{font-family:'IBM Plex Mono',monospace;font-size:8px;font-weight:600;color:var(--teal);letter-spacing:.07em}
+  .step .h{font-weight:700;font-size:10.5px;margin:2px 0 3px;text-transform:uppercase}.step p{font-size:9px;color:var(--mute);line-height:1.3}.step p b{color:var(--ink)}
+  .strip{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .strip span{font-family:'IBM Plex Mono',monospace;font-size:8.5px;border:1px solid var(--ink);padding:3px 7px;background:var(--card)}
+  .strip .h{color:var(--mute);border:none;padding-left:0}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .box{background:var(--card);border:1px solid var(--line);padding:10px 13px;break-inside:avoid}
+  .box h4{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+  .box.green h4{color:var(--teal)}.box.red h4{color:var(--red)}
+  ul.clean{list-style:none}
+  ul.clean li{font-size:9.5px;line-height:1.36;padding-left:12px;position:relative;margin-bottom:3.5px}
+  ul.clean li::before{content:"";position:absolute;left:0;top:5px;width:4px;height:4px;background:var(--ink)}
+  .box.green li::before{background:var(--teal)}.box.red li::before{background:var(--red)}
+  li b{font-weight:600}.k{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600}
+
+  .cycle{display:flex;background:var(--card);border:1px solid var(--line);flex-wrap:wrap}
+  .cyc{flex:1;min-width:95px;padding:8px 10px;text-align:center;border-right:1px solid var(--line)}.cyc:last-child{border-right:none}
+  .cyc .ph{font-weight:700;font-size:10px;text-transform:uppercase}.cyc .sub{font-size:8.5px;color:var(--mute);margin-top:1px;line-height:1.2}
+  .cyc.up{background:rgba(47,111,94,.08)}.cyc.up .ph{color:var(--teal)}
+  .cyc.no{background:rgba(169,118,26,.1)}.cyc.no .ph{color:var(--amber)}
+  .cyc.dn{background:rgba(191,36,43,.08)}.cyc.dn .ph{color:var(--red)}
+
+  .patgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .pat{border:1px solid var(--line);border-top:3px solid var(--pc);background:var(--card);padding:9px 12px;break-inside:avoid}
+  .pat .tag{font-family:'IBM Plex Mono',monospace;font-size:7.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--pc)}
+  .pat .name{font-weight:700;font-size:12px;margin:1px 0 4px;text-transform:uppercase}
+  .pat ul{list-style:none}.pat li{font-size:9.5px;line-height:1.34;padding-left:11px;position:relative;margin-bottom:2.5px;color:var(--mute)}
+  .pat li::before{content:"";position:absolute;left:0;top:5px;width:4px;height:4px;background:var(--pc)}.pat li b{color:var(--ink)}
+  .pat.s{--pc:var(--short)}.pat.l{--pc:var(--long)}
+
+  .timeline{display:flex;border:1px solid var(--line);background:var(--card);flex-wrap:wrap}
+  .slot{flex:1;min-width:108px;padding:8px 10px;border-right:1px solid var(--line)}.slot:last-child{border-right:none}
+  .slot .tm{font-family:'IBM Plex Mono',monospace;font-size:8.5px;font-weight:600}
+  .slot .lab{font-weight:700;font-size:10px;text-transform:uppercase;margin:1px 0 2px}.slot .d{font-size:8.5px;color:var(--mute);line-height:1.26}
+  .slot.prime{background:rgba(47,111,94,.1)}.slot.prime .lab{color:var(--teal)}
+  .slot.zombie{background:rgba(169,118,26,.1)}.slot.zombie .lab{color:var(--amber)}
+  .slot.crash{background:rgba(191,36,43,.08)}.slot.crash .lab{color:var(--red)}
+
+  .tier{display:grid;grid-template-columns:42px 1fr 78px 120px;gap:10px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--grade);padding:7px 12px;margin-bottom:5px}
+  .tier .glyph{font-family:'Anton',sans-serif;font-size:32px;line-height:.72;color:var(--grade)}
+  .tier .name{font-weight:700;font-size:11.5px;text-transform:uppercase}.tier .p2{font-size:9px;color:var(--mute);line-height:1.28;margin-top:1px}.tier .p2 b{color:var(--ink)}
+  .win{text-align:center}.win .pct{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;color:var(--grade)}
+  .l{font-family:'IBM Plex Mono',monospace;font-size:7px;color:var(--mute);letter-spacing:.05em;text-transform:uppercase}
+  .qz .q{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;text-align:right}.qz .l{text-align:right}
+  .bar{height:5px;background:#e7e6df;margin-top:4px;position:relative;overflow:hidden}.bar i{position:absolute;inset:0 auto 0 0;background:var(--grade);width:var(--w)}
+  .tier.c{--grade:var(--mute)}.tier.b{--grade:var(--amber)}.tier.a{--grade:var(--red)}
+
+  .panel{background:var(--card);border:1px solid var(--line);padding:10px 13px;break-inside:avoid}
+  .panel h3{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;letter-spacing:.11em;text-transform:uppercase;padding-bottom:5px;margin-bottom:7px;border-bottom:1.5px solid var(--ink)}
+  .panel h3.r{color:var(--red);border-color:var(--red)}.panel h3.t{color:var(--teal);border-color:var(--teal)}.panel h3.a{color:var(--amber);border-color:var(--amber)}
+  .panel.rr li::before{background:var(--red)}.panel.tt li::before{background:var(--teal)}.panel.aa li::before{background:var(--amber)}
+  .span2{grid-column:1 / -1}
+
+  .cap{margin-top:18px;border:2px solid var(--teal);background:var(--card);padding:15px 18px;display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap;break-inside:avoid}
+  .cap .big{font-family:'Anton',sans-serif;font-size:25px;text-transform:uppercase;color:var(--teal);line-height:.95}
+  .cap .why{font-size:9.5px;color:var(--mute);max-width:56ch;line-height:1.44}.cap .why b{color:var(--ink)}
+
+  /* PER-TRADE TICKET */
+  .ticket{border:2px solid var(--ink);background:var(--card);padding:0;break-inside:avoid}
+  .tk-head{background:var(--ink);color:#fff;padding:9px 14px;display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px}
+  .tk-head .tt{font-family:'Anton',sans-serif;font-size:17px;text-transform:uppercase;letter-spacing:.04em}
+  .tk-head .fields{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#cfcfca}
+  .tk-body{padding:12px 14px}
+  .tk-row{display:grid;grid-template-columns:118px 1fr;gap:10px;align-items:start;padding:7px 0;border-bottom:1px dashed var(--line)}
+  .tk-row:last-child{border-bottom:none}
+  .tk-lab{font-family:'IBM Plex Mono',monospace;font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;color:var(--ink);padding-top:2px}
+  .tk-lab .sub{display:block;font-weight:400;font-size:8px;color:var(--mute);letter-spacing:.02em;margin-top:1px}
+  .tk-val{font-size:9.5px;color:var(--mute);line-height:1.5}
+  .opts{display:flex;flex-wrap:wrap;gap:5px}
+  .opt{font-family:'IBM Plex Mono',monospace;font-size:8.5px;border:1px solid var(--line);padding:3px 8px;background:var(--paper);text-transform:uppercase}
+  .opt.s{border-color:var(--red);color:var(--red)}.opt.l{border-color:var(--teal);color:var(--teal)}
+  .writeline{border-bottom:1px solid var(--mute);min-height:15px;flex:1}
+  .nums{display:grid;grid-template-columns:repeat(2,1fr);gap:7px}
+  .num{border:1px solid var(--line);padding:5px 8px;background:var(--paper)}
+  .num .nl{font-family:'IBM Plex Mono',monospace;font-size:8px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+  .num .nb{border-bottom:1px solid var(--mute);min-height:14px;margin-top:3px}
+  .verdict{display:flex;gap:7px;align-items:center;margin-top:2px}
+  .vbox{font-family:'IBM Plex Mono',monospace;font-size:9px;font-weight:600;border:1.5px solid var(--ink);padding:4px 12px;text-transform:uppercase}
+  .vbox.y{border-color:var(--teal);color:var(--teal)}.vbox.n{border-color:var(--red);color:var(--red)}
+
+  footer{margin-top:12px;border-top:1px solid var(--line);padding-top:9px}footer p{font-size:8px;color:var(--mute);line-height:1.45;max-width:100ch}
+
+  @media print{body{padding:0;background:#fff}.doc{max-width:none}@page{size:A4;margin:8mm}header,section,.cap,.ticket{break-inside:avoid}.shead{break-after:avoid}.pagebreak{break-before:page}}
+  @media (max-width:720px){.two,.patgrid{grid-template-columns:1fr}.spectrum{grid-template-columns:1fr}.tier{grid-template-columns:36px 1fr;gap:8px}.win,.qz{grid-column:1/-1;text-align:left}.qz .q,.qz .l{text-align:left}h1{font-size:34px}.step,.slot,.cyc{border-right:none;border-bottom:1px solid var(--line)}.tk-row{grid-template-columns:1fr}.nums{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <header>
+    <div class="eyebrow">My Investing Club · Alex Temiz Method · Complete Edition</div>
+    <h1>The<br>Playbook.</h1>
+    <p class="essence"><b>The whole thing in one line:</b> find emotionally overextended small-cap pumps, read the regime, vet the stock, wait for backside exhaustion in your one window, enter with tightly defined risk, <b>take the money</b>, and compound — because <b>you don't make money by making money; you make it by controlling losses. The holy grail was never a setup. It's risk management and process. Price action is king. Assume every stock is trying to trap you.</b></p>
+    <div class="credit">Compiled from public MIC / Temiz material · Bao (MR) · Stevenrh1 · TBradley90 · TheTradingFish · course notes</div>
+  </header>
+
+  <div class="partbar"><span class="pn">Part I</span><span class="pt">The Manual</span><span class="rule"></span></div>
+
+  <!-- 1 REGIME -->
+  <section>
+    <div class="shead"><span class="num">01</span><h2>Read the Regime First</h2><span class="src">Market Sentiment</span></div>
+    <p class="lead">The master switch — short, fade light, or stand down. <b>In hyper-bullish tape, don't short anything until the first red day.</b> Sentiment is psychological before technical: attitude toward what's possible creates what's possible.</p>
+    <div class="spectrum">
+      <div class="ladderbar">
+        <div class="rung" style="background:#1f3a5f">Crack Week</div>
+        <div class="rung" style="background:#2f6f5e">Hyper Bullish</div>
+        <div class="rung" style="background:#6aa84f">Bull</div>
+        <div class="rung" style="background:#d6a328;color:#2a2208">Everyone's</div>
+        <div class="rung" style="background:#d4761f">Bearish</div>
+        <div class="rung" style="background:#bf242b">Hyper Bearish</div>
+        <div class="rung" style="background:#6e1418">Dead</div>
+      </div>
+      <div class="regimes">
+        <div class="reg" style="--rc:#1f3a5f"><div class="t">Crack Week</div><div class="d">Wildly crazy, nano-float galore. Biggest opportunity and risk.</div></div>
+        <div class="reg" style="--rc:#2f6f5e"><div class="t">Hyper Bullish</div><div class="d"><b>Don't short until the first red day.</b> Fading strength gets you run over.</div></div>
+        <div class="reg" style="--rc:#6aa84f"><div class="t">Bull</div><div class="d">Multi-day runners, strong closes, VWAP clingers. Longs work.</div></div>
+        <div class="reg" style="--rc:#d6a328"><div class="t">Everyone's Market</div><div class="d">A bit of everything. Both sides tradable — grade hard.</div></div>
+        <div class="reg" style="--rc:#d4761f"><div class="t">Bearish</div><div class="d">Stocks struggle for footing — more fails than successes.</div></div>
+        <div class="reg" style="--rc:#bf242b"><div class="t">Hyper Bearish</div><div class="d">Pop-and-drop, all-day faders. Prime shorting.</div></div>
+        <div class="reg" style="--rc:#6e1418"><div class="t">Dead</div><div class="d">Every pop hammered pre-market, no demand. Smallest size / sit out.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 UNIVERSE -->
+  <section>
+    <div class="shead"><span class="num">02</span><h2>The Universe — Be a Little Fish</h2><span class="src">What we trade / avoid</span></div>
+    <div class="two">
+      <div class="box green">
+        <h4>Trade This</h4>
+        <ul class="clean">
+          <li><b>Under $300M cap, under $10/share.</b> Micro ($50–300M), nano (&lt;$50M), penny.</li>
+          <li><b>Momo names</b> — emotional, volatile, fundamentals out the window. That's the edge.</li>
+          <li>Catalysts that matter: earnings/calls, index additions, genuine PR.</li>
+        </ul>
+      </div>
+      <div class="box red">
+        <h4>Avoid This</h4>
+        <ul class="clean">
+          <li><b>Financials, energy, real estate</b> — where the big players hang out.</li>
+          <li><b>M&amp;A</b> — no idea what happens. Big-cap PR (Amazon/Walmart-tier).</li>
+          <li><b>90% of small-cap PR is noise.</b> Don't believe it until proven. Forward-looking events are dangerous.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 PROCESS -->
+  <section>
+    <div class="shead"><span class="num">03</span><h2>The Process — Trust It</h2><span class="src">Bao / MR</span></div>
+    <p class="lead">Non-negotiable prep, every day. Flag the macro calendar first. <b>If you haven't done the dig, take the ticker off the screen.</b> The plays that look scariest often pay the most — the plan is what stops you being scared when the time comes.</p>
+    <div class="flow">
+      <div class="step"><div class="n">01·SCAN</div><div class="h">Run It</div><p>Pick a name; compare with the room. Up <b>&gt;15–20%</b> → plan it.</p></div>
+      <div class="step"><div class="n">02·NEWS</div><div class="h">The Reason</div><p>Why is it gapping? Real catalyst or rehash?</p></div>
+      <div class="step"><div class="n">03·FINVIZ</div><div class="h">Real Co.?</div><p>Cap, float, inst %, short float. <b>Could Bao/Alex buy it?</b></p></div>
+      <div class="step"><div class="n">04·BAMSEC</div><div class="h">Dilution</div><p>424B / S-3 on effect? <b>Do they need money?</b></p></div>
+      <div class="step"><div class="n">05·CHART</div><div class="h">Lines</div><p>Bigcharts 1yr→9/6/3mo. Resistance, pivots.</p></div>
+      <div class="step"><div class="n">06·THESIS</div><div class="h">Plan It</div><p>Front/backside? Stop, scale, add — and a plan if <b>wrong</b>.</p></div>
+    </div>
+    <div class="two" style="margin-top:9px">
+      <div class="box green"><h4>Dilution Lens — Long</h4><ul class="clean"><li><b>No dilution = edge for longs.</b> Want few filing flags — or ride momentum aware of them.</li></ul></div>
+      <div class="box red"><h4>Dilution Lens — Short</h4><ul class="clean"><li><b>Dilution = edge for shorts; more red flags the better</b> — a company that needs cash dumps into the spike. (Separate from squeeze flags, §05.)</li></ul></div>
+    </div>
+    <div class="strip" style="margin-top:9px">
+      <span class="h mono">PRE-MKT SCAN →</span><span>Gap &gt;15% (Bao 7–8%)</span><span>PM $vol &gt;$50K</span><span>Trades &gt;100</span><span>Price &gt;$0.50</span>
+    </div>
+    <div class="strip">
+      <span class="h mono">NIGHTLY SCAN →</span><span>Up &gt;30%</span><span>$vol &gt;$3M</span><span>Trades &gt;3,000</span><span>Price $0.50–$20</span>
+    </div>
+    <p class="psych">Then: <b>fantasy orders → breathe → let the play come to you. Trust the damn process.</b></p>
+  </section>
+
+  <!-- 4 VETOES -->
+  <section>
+    <div class="shead"><span class="num">04</span><h2>Vetoes — Red Flags &amp; Don't-Shorts</h2><span class="src">Process · TBradley90</span></div>
+    <p class="lead">You nail 9 of 10; the 10th sends you to the hole. If a flag shows for a short, <b>best to avoid</b> — but price action is king, don't be blindly biased.</p>
+    <div class="two">
+      <div class="box red">
+        <h4>The Big 3 — Squeeze Vetoes</h4>
+        <ul class="clean">
+          <li><b>Short float &gt;20%</b> — squeeze risk; better as a long.</li>
+          <li><b>Inst. ownership &gt;40%</b> — they won't let it die.</li>
+          <li><b>Float &lt;1M</b> — rotation + wide spreads. Avoid early.</li>
+          <li>Others: <b>cap &gt;$100M, PM vol &gt;3M, SSR Day 1, gap &lt;30%</b>, no clear daily S/R.</li>
+          <li style="color:var(--ink)">A perfect short is <b>dilutive AND un-squeezable</b> — different checks.</li>
+        </ul>
+      </div>
+      <div class="box red">
+        <h4>Never Short</h4>
+        <ul class="clean">
+          <li><b>Frontside Day 1 · micro-floats &lt;3M · reverse splits.</b></li>
+          <li><b>52-wk / all-time-high breakouts</b> with a real catalyst.</li>
+          <li><b>Pre-market · last 30 min · no-meat stocks.</b></li>
+          <li><b>After an "F-U candle"</b> — the reversal that rips through VWAP and traps shorts.</li>
+          <li>Unclear open? Give it <b>15 min</b>, gauge trend, then attack.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 FRONT/BACK -->
+  <section>
+    <div class="shead"><span class="num">05</span><h2>Frontside &amp; Backside</h2><span class="src">The cycle</span></div>
+    <p class="lead"><b>Longs live on the frontside; shorts live on the backside.</b> The middle is no man's land — don't trade it. Above VWAP, longs are in control; below VWAP, shorts are. <b>Identify which side is trapped.</b></p>
+    <div class="cycle">
+      <div class="cyc up"><div class="ph">Frontside</div><div class="sub">Momo up · longs · First Bounce, VWAP Reclaim</div></div>
+      <div class="cyc up"><div class="ph">Top</div><div class="sub">Equilibrium · STUFF move / rejection</div></div>
+      <div class="cyc no"><div class="ph">Turning Point</div><div class="sub">No man's land — don't trade</div></div>
+      <div class="cyc dn"><div class="ph">Backside</div><div class="sub">Point of no return · shorts · FRD, Deathline, LHF</div></div>
+    </div>
+  </section>
+
+  <!-- 6 PATTERNS -->
+  <section>
+    <div class="shead"><span class="num">06</span><h2>The Pattern Set</h2><span class="src">MIC · 8 patterns + STUFF</span></div>
+    <div class="patgrid">
+      <div class="pat l"><div class="tag">Frontside · Long</div><div class="name">First Bounce</div>
+        <ul><li>Price returns to support (line chart) and <b>bounces</b>.</li><li>PM lines; wait for the wash + bounce. Whole/half-dollar marks — close enough is good enough.</li></ul></div>
+      <div class="pat l"><div class="tag">Frontside · Long</div><div class="name">VWAP Reclaim</div>
+        <ul><li>Big morning volume that <b>dies, does nothing, traps shorts</b>, then reclaims VWAP. Powerful, often late-day.</li><li>Low float, SSR a plus, real catalyst, <b>small gap &lt;30%</b>. Shorts' stops at the high get taken — domino.</li></ul></div>
+      <div class="pat l"><div class="tag">Frontside · Long</div><div class="name">First Green Day</div>
+        <ul><li>Mirror of First Red Day — first decisive green day after a multi-day washout.</li><li>Longs only; needs strength reclaiming prior structure.</li></ul></div>
+      <div class="pat l"><div class="tag">Zombie Time · Long</div><div class="name">Zombie Move</div>
+        <ul><li>After 10:30 the dead stock wakes up — <b>trapped shorts who never covered are forced out</b>, squeezing it up.</li><li>Looks dead at 10:30, longs come in. This is <b>why shorts cut buying power at 10:30.</b></li></ul></div>
+      <div class="pat s"><div class="tag">Short · Transition</div><div class="name">First Resistance</div>
+        <ul><li>Brother of First Bounce — <b>first test of resistance is likely to reject.</b> Catch it, sell the pullback, move on.</li><li>Don't open too close to the line — it needs room to extend. A scalp, not an all-day hold.</li></ul></div>
+      <div class="pat s"><div class="tag">Backside · Short · Day-1</div><div class="name">Deathline</div>
+        <ul><li>Breakdown of the <b>final support</b>. Day 1 only, small caps only. Emotionally based.</li><li>PM support → pushes up AM → breaks → <b>fades all day</b>. Support becomes resistance. Small size if unsure.</li></ul></div>
+      <div class="pat s"><div class="tag">Backside · Short · A+</div><div class="name">First Red Day</div>
+        <ul><li><b>100%+ gainer, multiple green days, no big G/R chop.</b> Longs finally have a reason to exit.</li><li>Best when it <b>gaps up then goes red</b>. Beware red-to-green reclaims. Sell when it breaks VWAP going red.</li></ul></div>
+      <div class="pat s"><div class="tag">Backside · Short · Day-2</div><div class="name">Low Hanging Fruit</div>
+        <ul><li>Day-1 runner that <b>gaps down Day 2</b> (after a sell-off), pumping back to the prior day's most-traded price.</li><li><b>Trapped longs sell the pump</b> — short the bounce into prior-day resistance. Edge 9:30–10:00. Never long it.</li></ul></div>
+    </div>
+    <div class="box red" style="margin-top:8px"><h4>STUFF Move — The Signal</h4><ul class="clean"><li>A <b>massive rejection</b> — often a multi-/triple-top that can't break and slams; huge wicks. Level 2 sees it first. Support breach unwinds longs and flips the tug-of-war.</li></ul></div>
+  </section>
+
+  <!-- 7 TIMES -->
+  <section>
+    <div class="shead"><span class="num">07</span><h2>Key Times of Day</h2><span class="src">Eastern · cut size 10:30</span></div>
+    <div class="timeline">
+      <div class="slot"><div class="tm">9:25–9:29</div><div class="lab">Imbalance</div><div class="d">Imbalance prints. Don't FOMO — sit back, be patient.</div></div>
+      <div class="slot prime"><div class="tm">9:30–10:30</div><div class="lab">Prime</div><div class="d">Most volatile and active. The edge. Most members turn off after.</div></div>
+      <div class="slot zombie"><div class="tm">10:30–2:00</div><div class="lab">Zombie</div><div class="d">Dead stocks wake; trapped shorts squeezed (Zombie Move long). <b>Shorts cut buying power.</b></div></div>
+      <div class="slot crash"><div class="tm">2:00–3:00</div><div class="lab">Zombie Reversal</div><div class="d">Charts crash from their highs.</div></div>
+      <div class="slot"><div class="tm">3:00–4:00</div><div class="lab">Power Hour</div><div class="d">Works upside and downside.</div></div>
+    </div>
+    <p class="psych">No pre-market or after-hours trading. <b>Zombie hour at 10:30 — close shorts, lock the gains.</b></p>
+  </section>
+
+  <!-- 8 GRADE -->
+  <section>
+    <div class="shead"><span class="num">08</span><h2>Grade Sets the Size</h2><span class="src">Temiz · 30/70 · 90/10</span></div>
+    <div class="tier c"><div class="glyph">C</div><div><div class="name">VWAP Reject / First Resistance</div><div class="p2">Daily. Thinnest edge — or pass.</div></div><div class="win"><div class="pct">~50%</div><div class="l">win</div></div><div class="qz"><div class="q">1,000</div><div class="l">shares</div><div class="bar"><i style="--w:4%"></i></div></div></div>
+    <div class="tier b"><div class="glyph">B</div><div><div class="name">Resistance Re-Test / LHF</div><div class="p2">Fails, re-tests, <b>fails again.</b></div></div><div class="win"><div class="pct">75–80%</div><div class="l">win</div></div><div class="qz"><div class="q">5,000</div><div class="l">shares</div><div class="bar"><i style="--w:20%"></i></div></div></div>
+    <div class="tier a"><div class="glyph">A</div><div><div class="name">First Red Day</div><div class="p2">Parabolic exhaustion. <b>~once a quarter.</b></div></div><div class="win"><div class="pct">90–95%</div><div class="l">win</div></div><div class="qz"><div class="q">25,000</div><div class="l">shares</div><div class="bar"><i style="--w:100%"></i></div></div></div>
+    <div class="two" style="margin-top:8px">
+      <div class="box red"><h4>Short — 30 / 70</h4><ul class="clean"><li><b>30% frontside, 70% backside.</b> Never max size while it moves against you. Add full on the death candle.</li></ul></div>
+      <div class="box green"><h4>Long — 90 / 10</h4><ul class="clean"><li><b>90% frontside, 10% backside.</b> Longs are full over VWAP — size while momentum is with you.</li></ul></div>
+    </div>
+    <p class="psych">Numbers are Temiz's example ratios. <b>No rankings = not ready to size up.</b> Size by the setup, never by how you feel.</p>
+  </section>
+
+  <!-- 9 EXECUTION -->
+  <section>
+    <div class="shead"><span class="num">09</span><h2>Execution &amp; The Airbag</h2><span class="src">Fantasy orders · market stops</span></div>
+    <div class="two">
+      <div class="panel">
+        <h3>Orders &amp; Entries</h3>
+        <ul class="clean">
+          <li><b>Limit in, limit out.</b> "Fantasy" (pre-planned limit) orders so fear/greed can't move your hand. Fill a few cents early (.02–.04).</li>
+          <li><b>Stops are MARKET, always.</b> Limit stops don't guarantee a fill — get out at any cost.</li>
+          <li><b>Need range / meat.</b> No room to fall = no trade. Line-to-line: the lines don't change, your orders do.</li>
+          <li><b>Add to winners only</b> (offer for shorts, bid for longs). Adding to a loser built a −$450K day.</li>
+        </ul>
+      </div>
+      <div class="panel">
+        <h3>Exits — Take the Money</h3>
+        <ul class="clean">
+          <li><b>Pay yourself on the drops.</b> Sell partials into weakness; ~75% off by the end.</li>
+          <li>Cover at <b>lines / support</b>, before bazooka bidders — never arbitrary targets.</li>
+          <li><b>No runners.</b> Assume every stock will trap you — take it and walk. Time freedom &gt; a few extra dollars.</li>
+          <li>After a red day, just be green tomorrow. <b>+$1 is enough.</b></li>
+        </ul>
+      </div>
+      <div class="panel rr span2">
+        <h3 class="r">Risk &amp; Stops — Non-Negotiable</h3>
+        <ul class="clean" style="columns:2;column-gap:22px">
+          <li><b>Hard MARKET stop one second after entry.</b> The button after "enter" is always "stop."</li>
+          <li><b>Broker max daily loss + max shares</b> (~500 learning). Example: <span class="k">$100</span>/trade, <span class="k">$500</span>/day.</li>
+          <li><b>Risk 1–2% per trade, ~5% max daily.</b> Temiz-style: max loss ≈ 2 days of work. Max size ≈ 1/5 equity.</li>
+          <li><b>Stop where the thesis dies.</b> Shorts: HoD, prior close, VWAP, higher high, <b>PM high</b>. Longs: LoD, prior close, VWAP, lower low, PM low.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 DISCIPLINE -->
+  <section>
+    <div class="shead"><span class="num">10</span><h2>Survive the Curve · Discipline</h2><span class="src">Stevenrh1</span></div>
+    <div class="two">
+      <div class="panel tt">
+        <h3 class="t">Earn the Size</h3>
+        <ul class="clean">
+          <li><b>Don't risk capital while learning.</b> Pick one setup, study every video, write the plan.</li>
+          <li><b>Paper trade (Das Sim)</b> → small shares (good trades, not money — fees are tuition).</li>
+          <li><b>Size up only after 30–60 days</b> consistent, slowly. Practice the click at 1 share first.</li>
+          <li><b>Size down + break</b> when a loss stresses you, on a streak, or when stopped out yet right.</li>
+        </ul>
+      </div>
+      <div class="panel aa">
+        <h3 class="a">Discipline</h3>
+        <ul class="clean">
+          <li><b>Size down to 50%</b> until a month of consistency. Post the plan (risk/stops, size, entries, covers).</li>
+          <li><b>WIN = followed the plan; LOSS = deviated</b> — regardless of P&amp;L. Deviate only for a technical reason.</li>
+          <li><b>Three strikes, you're out.</b> Walk away 5 min after a loss; reset at 4 PM.</li>
+          <li><b>Guard rails &gt; willpower.</b> Recolor candles, cutoff alarms, silence the phone. Pull profits. Know your numbers.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 CATALYST -->
+  <section>
+    <div class="shead"><span class="num">11</span><h2>Macro Catalyst Days</h2><span class="src">FOMC · CPI · Jobs</span></div>
+    <div class="panel aa">
+      <ul class="clean" style="columns:2;column-gap:22px">
+        <li><b>8:30 prints threaten entries.</b> CPI / NFP / PPI / PCE whip the open; a dovish print rips small-caps and squeezes clean shorts on beta.</li>
+        <li><b>FOMC (2 PM) threatens holds.</b> Lands after your window — flatten anything carried into 2:00.</li>
+        <li><b>Don't chase the first 5–15 min</b> — algos overshoot, then fade. Wait for the second move.</li>
+        <li><b>Macro day = smaller or no new risk.</b> When the whole tape reprices, single-stock edge thins.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="cap">
+    <div class="big">Go fishing.<br>Wait for your plan.</div>
+    <div class="why">Cast and wait; if the fish doesn't come, you don't jump in and swim after it. Temiz went <b>ten days without a trade</b>, then made his month in one session. <b>Patient to wait, decisive to strike.</b> Assume every stock is trying to trap you — so take the money. Breathe, let the play come to you, and <b>trust the damn process.</b></div>
+  </div>
+
+  <!-- PART II : THE TICKET -->
+  <div class="pagebreak"></div>
+  <div class="partbar"><span class="pn">Part II</span><span class="pt">The Per-Trade Ticket</span><span class="rule"></span></div>
+  <p class="lead">One ticket per trade. Fill it during the dig, before you click. <b>If a box can't be answered, there's no trade.</b> Print a stack.</p>
+
+  <div class="ticket">
+    <div class="tk-head"><span class="tt">Trade Ticket</span><span class="fields">DATE ________  TICKER ________  ACCT ________</span></div>
+    <div class="tk-body">
+
+      <div class="tk-row">
+        <div class="tk-lab">Regime<span class="sub">circle one</span></div>
+        <div class="opts">
+          <span class="opt">Crack</span><span class="opt l">Hyper Bull</span><span class="opt l">Bull</span><span class="opt">Everyone's</span><span class="opt s">Bearish</span><span class="opt s">Hyper Bear</span><span class="opt">Dead</span>
+        </div>
+      </div>
+
+      <div class="tk-row">
+        <div class="tk-lab">Catalyst<span class="sub">the reason</span></div>
+        <div class="tk-val"><div class="writeline"></div><div style="margin-top:4px;font-size:8.5px">Real / rehash? &nbsp; <span class="mono">90% of PR is noise</span></div></div>
+      </div>
+
+      <div class="tk-row">
+        <div class="tk-lab">Real Company?<span class="sub">Finviz</span></div>
+        <div class="tk-val"><div class="opts" style="margin-bottom:4px"><span class="opt">Cap ____</span><span class="opt">Float ____</span><span class="opt">Inst% ____</span><span class="opt">Short% ____</span></div>Could Bao/Alex actually buy it? &nbsp; Y / N</div>
+      </div>
+
+      <div class="tk-row">
+        <div class="tk-lab">Dilution Lens<span class="sub">BamSEC</span></div>
+        <div class="tk-val"><div class="opts"><span class="opt s">SHORT: dilutive = good</span><span class="opt l">LONG: clean = good</span></div><div style="margin-top:4px">On effect? Needs money? &nbsp; Y / N</div></div>
+      </div>
+
+      <div class="tk-row">
+        <div class="tk-lab">Squeeze Veto<span class="sub">any YES = no short</span></div>
+        <div class="tk-val"><span class="opt s">Short float &gt;20%</span> &nbsp; <span class="opt s">IO &gt;40%</span> &nbsp; <span class="opt s">Float &lt;1M</span> &nbsp;&nbsp; <b>Clear?</b> Y / N</div>
+      </div>
+
+      <div class="tk-row">
+        <div class="tk-lab">Side &amp; Pattern</div>
+        <div class="tk-val"><div class="opts" style="margin-bottom:5px"><span class="opt l">FRONTSIDE</span><span class="opt s">BACKSIDE</span><span class="opt">Grade: A / B / C</span></div><div class="writeline"></div><div style="margin-top:3px;font-size:8.5px">Pattern: FRD · Deathline · LHF · 1st Resist · 1st Bounce · VWAP Reclaim · 1st Green · Zombie</div></div>
+      </div>
+
+      <div class="tk-row">
+        <div class="tk-lab">The 4 Numbers<span class="sub">set before entry</span></div>
+        <div class="tk-val">
+          <div class="nums">
+            <div class="num"><div class="nl">① Entry (limit)</div><div class="nb"></div></div>
+            <div class="num"><div class="nl">② Stop — MARKET (PM high)</div><div class="nb"></div></div>
+            <div class="num"><div class="nl">③ Target / covers (limit)</div><div class="nb"></div></div>
+            <div class="num"><div class="nl">④ Add zone</div><div class="nb"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tk-row">
+        <div class="tk-lab">Size Plan</div>
+        <div class="tk-val"><span class="opt s">Short 30 / 70</span> &nbsp; <span class="opt l">Long 90 / 10</span> &nbsp;&nbsp; Shares ______ &nbsp; Risk $ ______ (≤1–2%)</div>
+      </div>
+
+      <div class="tk-row">
+        <div class="tk-lab">Guards<span class="sub">tick</span></div>
+        <div class="tk-val">☐ In 9:30–10:30 &nbsp; ☐ Broker max loss set &nbsp; ☐ Max shares set &nbsp; ☐ Has range/meat &nbsp; ☐ No veto flags</div>
+      </div>
+
+      <div class="tk-row">
+        <div class="tk-lab">Verdict<span class="sub">win = followed plan</span></div>
+        <div class="tk-val"><div class="verdict"><span>Followed the plan?</span><span class="vbox y">WIN</span><span class="vbox n">LOSS</span><span style="font-size:8.5px">P&amp;L $ ______ &nbsp;(P&amp;L does not decide this)</span></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <p><b>Educational only — not financial advice.</b> Compiled from public MIC / Temiz material and community contributors (Bao, Stevenrh1, TBradley90, TheTradingFish). Short selling small-caps carries uncapped single-trade risk; documented results are not typical and most day traders lose money. This is a summary of a discretionary method, not a system or recommendation. Generic candlestick/chart-pattern references are standard TA, not MIC-specific. Decide entry, stop, target and grade <i>before</i> you click — then execute without discretion.</p>
+  </footer>
+
+</div>
+</body>
+</html>
