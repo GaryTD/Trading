@@ -1,0 +1,216 @@
+//@version=6
+// ============================================================================
+//  BaseCamp Δ10 Matrix — PRO   v2.0.1
+//  Culmination build. Consolidates every validated piece; supersedes v1.0.
+//  v2.0.1: removed the model credit estimate + aim verdict (BS mid on far-OTM
+//    weeklies is model-sensitive and misdirected rung selection on the 03.07
+//    reference). Credit is now a chain-confirmed target ($1.00-1.10), not a
+//    computed number. Dropped the dead BS pricing functions with it.
+//  (v1.0 was the clean re-baseline of the rebuilt indicator, distinct from the
+//   retired v9.2 lineage.)
+//
+//  VALIDATED & LIVE:
+//    • Directional gate — 8-EMA slope + Keltner 1.5 ATR  (Bull Put / Bear Call / Stand Aside)
+//    • Defense ladder   — round50(short ± 1 ATR)=CRITICAL, ± 2 ATR=OK   (4/4 alerts, incl. bear call)
+//    • Grid quantization — strikes $5, defense $50
+//  PROVISIONAL (confirm Δ on chain):
+//    • Strike — closed-form Δ ladder off FRONT-WEEK IV + skew.
+//      VIX9D was proven to UNDERSHOOT, so default vol = manual front-week IV;
+//      auto-fallback is VIX30 (closer than VIX9D), never VIX9D.
+//  INACTIVE HOOKS: MQ momentum confirmation.
+//
+//  NOTE on the integrity check: OK & CRITICAL are the raw 1-ATR gap rounded to
+//  $50 — usually 100 apart but can be 50/150. The true invariant is "OK is the
+//  outer line, ~1 ATR out", which is what integrityOk tests (sign-neutral).
+// ============================================================================
+indicator("BaseCamp Δ10 Matrix PRO v2.0", overlay = true, max_lines_count = 500, max_labels_count = 100)
+
+// ------------------------------ INPUTS ------------------------------
+gG = "1 · Regime gate"
+emaLen    = input.int(8,    "8-EMA length",             group = gG)
+slopeDead = input.float(0.05,"Flat deadband (% / bar)", group = gG, step = 0.01)
+kcLen     = input.int(20,   "Keltner basis EMA",        group = gG)
+kcMult    = input.float(1.5,"Keltner ATR mult (1.5)",   group = gG, step = 0.1)
+atrLen    = input.int(14,   "ATR length (RMA)",         group = gG)
+
+gS = "2 · Strike  (provisional — confirm Δ on chain)"
+ivMode   = input.string("Manual front-week IV", "Vol source", options = ["Manual front-week IV", "Auto VIX30"], group = gS)
+manualIV = input.float(14.77, "Front-week IV %",  group = gS, step = 0.01)
+putSkew  = input.float(1.2,   "Put-skew add (vol)",  group = gS, step = 0.1)
+callSkew = input.float(0.6,   "Call-skew add (vol)", group = gS, step = 0.1)
+rung     = input.string("Δ10 standard", "Primary rung", options = ["Δ12 aggressive", "Δ10 standard", "Δ8 conservative"], group = gS)
+dte      = input.int(7,   "DTE (calendar)", group = gS)
+wing     = input.float(15,"Wing width $",   group = gS)
+gridK    = input.int(5,   "Strike grid $",  group = gS)
+gridD    = input.int(50,  "Defense grid $", group = gS)
+
+gC = "3 · Credit aim"
+aimLo = input.float(1.00, "Aim credit low $",       group = gC, step = 0.05)
+aimHi = input.float(1.10, "Aim credit high $",      group = gC, step = 0.05)
+
+gD = "4 · Defense ladder"
+critMult = input.float(1.0, "CRITICAL ATR mult", group = gD, step = 0.1)
+okMult   = input.float(2.0, "OK ATR mult",       group = gD, step = 0.1)
+rollGap  = input.int(125,   "T2 roll gap $",     group = gD)
+
+gE = "5 · Event gate"
+dteMin = input.int(5, "Min DTE to allow entry", group = gE)
+dteMax = input.int(9, "Max DTE to allow entry", group = gE)
+fomcY  = input.int(0, "FOMC year (0 = none)",   group = gE)
+fomcM  = input.int(0, "FOMC month",             group = gE)
+fomcD  = input.int(0, "FOMC day",               group = gE)
+
+gV = "6 · Vol / selectivity"
+ivrLen = input.int(252, "IV-rank lookback (bars)", group = gV)
+
+gM = "7 · MQ confirmation  (inactive hook)"
+useMQ = input.bool(false, "Require momentum confirmation", group = gM)
+
+gX = "8 · Display"
+showLines  = input.bool(true, "Defense lines",        group = gX)
+showLabels = input.bool(true, "On-chart trade label", group = gX)
+tblPad     = input.int(8, "Table right margin (spaces, clears price axis)", minval = 0, maxval = 40, group = gX)
+
+// ---------------------------- FUNCTIONS ----------------------------
+// (Pine functions cannot read globals — everything is passed as parameters.)
+f_snap(x, g) => math.round(x / g) * g
+
+f_shortK(S, z, sp, sc, g, bc) => bc ? f_snap(S * math.exp(z * sc - 0.5 * sc * sc), g) : f_snap(S * math.exp(0.5 * sp * sp - z * sp), g)
+
+f_ln(_p, _c, _w, _st) => line.new(bar_index - 3, _p, bar_index, _p, color = _c, width = _w, extend = extend.right, style = _st)
+
+f_row(_t, _i, _k, _v, _c) =>
+    table.cell(_t, 0, _i, _k, text_color = color.gray, text_size = size.small, text_halign = text.align_left)
+    table.cell(_t, 1, _i, _v, text_color = _c,         text_size = size.small, text_halign = text.align_right)
+
+// ------------------------------ DATA ------------------------------
+spot = close
+atr  = ta.atr(atrLen)
+ema  = ta.ema(close, emaLen)
+kcB  = ta.ema(close, kcLen)
+kcUp = kcB + kcMult * atr
+kcDn = kcB - kcMult * atr
+vix  = request.security("CBOE:VIX", "D", close, ignore_invalid_symbol = true)
+ivPct = ivMode == "Auto VIX30" and not na(vix) ? vix : manualIV
+
+vHi = ta.highest(vix, ivrLen)
+vLo = ta.lowest(vix, ivrLen)
+ivRank = not na(vix) and (vHi - vLo) > 0 ? (vix - vLo) / (vHi - vLo) * 100.0 : na
+
+// --------------------------- REGIME GATE ---------------------------
+slope   = (ema - ema[1]) / ema[1] * 100.0
+rising  = slope >  slopeDead
+falling = slope < -slopeDead
+onUp    = close > kcUp
+onDn    = close < kcDn
+dir  = rising and onUp ? "BULL PUT · half" : rising ? "BULL PUT" : falling and onDn ? "BEAR CALL · half" : falling ? "BEAR CALL" : "STAND ASIDE"
+isBP = str.contains(dir, "BULL")
+isBC = str.contains(dir, "BEAR")
+
+// ------------------- STRIKE (closed-form Δ ladder) -----------------
+Tyr  = dte / 365.0
+z12  = 1.17499
+z10  = 1.28155
+z8   = 1.40507
+zPri = rung == "Δ12 aggressive" ? z12 : rung == "Δ8 conservative" ? z8 : z10
+sigP = (ivPct + putSkew)  / 100.0 * math.sqrt(Tyr)
+sigC = (ivPct + callSkew) / 100.0 * math.sqrt(Tyr)
+short = f_shortK(spot, zPri, sigP, sigC, gridK, isBC)
+sh12  = f_shortK(spot, z12,  sigP, sigC, gridK, isBC)
+sh10  = f_shortK(spot, z10,  sigP, sigC, gridK, isBC)
+sh8   = f_shortK(spot, z8,   sigP, sigC, gridK, isBC)
+sgn   = isBC ? -1 : 1
+longK = short - sgn * wing
+
+// credit estimate (mid) for the primary rung, then aim check
+// credit is confirmed on the chain against the $1.00–1.10 aim — no model estimate displayed
+// (BS mid on far-OTM weeklies is model-sensitive and can misdirect rung selection).
+
+// ------------------------- DEFENSE LADDER --------------------------
+critRaw = short + sgn * critMult * atr
+okRaw   = short + sgn * okMult * atr
+crit = f_snap(critRaw, gridD)
+okL  = f_snap(okRaw, gridD)
+cushion = math.abs(spot - short)
+thin   = okMult * atr > cushion                 // 2 ATR overshoots spot -> thin low-vol setup
+okDraw = thin ? spot : okL                       // clamp OK to spot if degenerate
+rawGap = math.abs(okRaw - critRaw)               // = 1 ATR exactly, pre-rounding
+okOuter = math.abs(okL - short) >= math.abs(crit - short)
+integrityOk = okOuter and rawGap > 0.5 * atr and rawGap < 1.5 * atr
+t2 = f_snap(short - sgn * rollGap, gridK)
+
+// -------------------------- EVENT GATE -----------------------------
+dteOk    = dte >= dteMin and dte <= dteMax
+expiryTs = time + dte * 86400000
+fomcTs   = fomcY > 0 ? timestamp(fomcY, fomcM, fomcD, 14, 0) : na
+fomcIn   = not na(fomcTs) and fomcTs >= time and fomcTs <= expiryTs
+
+// MQ hook (inactive): replace `true` with your MQ momentum condition to activate.
+mqConfirm = true
+
+// ---------------------------- STATUS -------------------------------
+standAside = dir == "STAND ASIDE"
+go = not standAside and dteOk and not fomcIn and (not useMQ or mqConfirm)
+status = standAside ? "STAND ASIDE" : fomcIn ? "VETO · FOMC in window" : not dteOk ? "WAIT · DTE " + str.tostring(dte) : (useMQ and not mqConfirm) ? "WAIT · MQ" : go ? "GO" : "WAIT"
+volState = na(ivRank) ? "n/a" : ivRank >= 50 ? "RICH · size up" : (not na(vix) and vix < 12) ? "TOO LOW · avoid" : ivRank < 20 ? "THIN · min size" : "NORMAL"
+
+// ---------------------------- PLOTS --------------------------------
+plot(ema,  "8 EMA", color = color.new(color.aqua, 0), linewidth = 2)
+plot(kcUp, "KC up", color = color.new(color.gray, 60))
+plot(kcDn, "KC dn", color = color.new(color.gray, 60))
+
+var line lOk = na
+var line lCr = na
+var line lSh = na
+var line lLo = na
+var line lT2 = na
+line.delete(lOk)
+line.delete(lCr)
+line.delete(lSh)
+line.delete(lLo)
+line.delete(lT2)
+if showLines and go
+    lOk := f_ln(okDraw, color.new(color.teal, 0),   2, line.style_dashed)
+    lCr := f_ln(crit,   color.new(color.red, 0),    2, line.style_solid)
+    lSh := f_ln(short,  color.new(color.purple, 0), 2, line.style_solid)
+    lLo := f_ln(longK,  color.new(color.gray, 40),  1, line.style_dotted)
+    lT2 := f_ln(t2,     color.new(color.purple, 60),1, line.style_dotted)
+
+// ------------------------ ON-CHART LABEL ---------------------------
+var label lbl   = na
+var label lblT2 = na
+label.delete(lbl)
+label.delete(lblT2)
+if showLabels and go and barstate.islast
+    txt = dir + " · SELL " + str.tostring(short, "#") + " / BUY " + str.tostring(longK, "#") + " (∓$" + str.tostring(wing, "#") + ") · aim $" + str.tostring(aimLo, "#.##") + "-" + str.tostring(aimHi, "#.##") + " confirm chain · " + status
+    lbl := label.new(bar_index, short, txt, style = label.style_label_up, color = color.new(isBP ? color.teal : color.red, 15), textcolor = color.white, size = size.small)
+    lblT2 := label.new(bar_index, t2, "T2 roll · SELL " + str.tostring(t2, "#") + " / BUY " + str.tostring(t2 - sgn * wing, "#"), style = label.style_label_up, color = color.new(color.gray, 30), textcolor = color.white, size = size.tiny)
+
+// ---------------------------- TABLE --------------------------------
+var table tb = table.new(position.top_right, 3, 16, border_width = 1, frame_width = 1, frame_color = color.new(color.gray, 50))
+if barstate.islast
+    // right-margin spacer column (col 2) pushes the data (cols 0-1) left off the price axis
+    if tblPad > 0
+        table.cell(tb, 2, 0, str.repeat(" ", tblPad), text_size = size.small)
+    stCol  = status == "GO" ? color.teal : str.startswith(status, "STAND") ? color.orange : color.red
+    dirCol = isBP ? color.teal : isBC ? color.red : color.orange
+    ivrCol = na(ivRank) ? color.gray : ivRank >= 50 ? color.teal : ivRank < 20 ? color.orange : color.white
+    f_row(tb, 0,  "MATRIX PRO",    "v2.0.1", color.gray)
+    f_row(tb, 1,  "Regime",        dir,      dirCol)
+    f_row(tb, 2,  "Status",        status,   stCol)
+    f_row(tb, 3,  "Vol / size",    volState + (na(ivRank) ? "" : "  IVR " + str.tostring(ivRank, "#")), ivrCol)
+    f_row(tb, 4,  "IV / ATR",      str.tostring(ivPct, "#.##") + "% " + (ivMode == "Auto VIX30" ? "VIX30" : "man") + " · " + str.tostring(atr, "#.#"), color.white)
+    f_row(tb, 5,  "— Δ ladder —",  "short / long", color.gray)
+    f_row(tb, 6,  "Δ12 aggro",     str.tostring(sh12, "#") + " / " + str.tostring(sh12 - sgn * wing, "#"), color.white)
+    f_row(tb, 7,  "Δ10 standard",  str.tostring(sh10, "#") + " / " + str.tostring(sh10 - sgn * wing, "#"), color.teal)
+    f_row(tb, 8,  "Δ8 conserv",    str.tostring(sh8,  "#") + " / " + str.tostring(sh8  - sgn * wing, "#"), color.white)
+    f_row(tb, 9,  "Credit aim",     "$" + str.tostring(aimLo, "#.##") + "-" + str.tostring(aimHi, "#.##") + " · chain", color.orange)
+    f_row(tb, 10, "— Defense —",   "", color.gray)
+    f_row(tb, 11, "OK",            str.tostring(okL, "#") + (thin ? " ⚠THIN" : "") + "  " + str.tostring(okMult, "#.#") + " ATR", thin ? color.orange : color.teal)
+    f_row(tb, 12, "CRITICAL",      str.tostring(crit, "#") + "  " + str.tostring(critMult, "#.#") + " ATR", color.red)
+    f_row(tb, 13, "OK−CRIT",       str.tostring(math.abs(okL - crit), "#") + " (~1 ATR)" + (integrityOk ? " ✓" : " ?"), integrityOk ? color.teal : color.orange)
+    f_row(tb, 14, "T2 roll",       str.tostring(t2, "#"), color.gray)
+    f_row(tb, 15, "Confirm Δ chain","before entry", color.orange)
+
+// ---------------------------- ALERT --------------------------------
+alertcondition(go and not go[1], "Matrix PRO · GO", "BaseCamp GO — confirm Δ10 on chain, then enter.")
