@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soloway — hub card (drop-in)</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* this page is only a PREVIEW canvas — copy the fragment between the markers below */
+  body{margin:0;background:#0a0d12;min-height:100vh;display:grid;place-items:center;
+    padding:40px 20px;font-family:'IBM Plex Sans',system-ui,sans-serif}
+  .preview-note{position:fixed;top:0;left:0;right:0;text-align:center;padding:8px;
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;
+    color:#5a6573;background:#0d1219;border-bottom:1px solid #1e2730}
+  .grid-demo{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,300px));gap:16px;max-width:640px}
+  .ghost{border:1px dashed #1e2730;border-radius:10px;min-height:150px;display:grid;place-items:center;
+    color:#3a4250;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.1em}
+
+/* ============================================================
+   ▼▼▼  COPY FROM HERE  —  SOLOWAY HUB CARD (style block)  ▼▼▼
+   ============================================================ */
+  .slw-card{
+    --slw-bg:#11161e;--slw-edge:#1e2730;--slw-edge-hot:#2b3744;
+    --slw-ink:#e6edf3;--slw-dim:#8b97a5;--slw-faint:#5a6573;
+    --slw-blue:#3d9be0;--slw-red:#e0544e;--slw-amber:#e0a23d;--slw-green:#46c97e;--slw-violet:#9d7cf0;
+    display:block;text-decoration:none;color:var(--slw-ink);
+    background:var(--slw-bg);border:1px solid var(--slw-edge);border-radius:10px;
+    padding:18px 18px 16px;position:relative;overflow:hidden;
+    font-family:'IBM Plex Sans',system-ui,sans-serif;
+    transition:border-color .18s ease, transform .18s ease;
+  }
+  .slw-card::before{content:"";position:absolute;inset:0 auto 0 0;width:3px;
+    background:linear-gradient(var(--slw-green),var(--slw-violet),var(--slw-amber),var(--slw-blue))}
+  .slw-card:hover{border-color:var(--slw-edge-hot);transform:translateY(-2px)}
+  .slw-card:focus-visible{outline:2px solid var(--slw-blue);outline-offset:2px}
+  .slw-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .slw-ref{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--slw-faint);border:1px solid var(--slw-edge-hot);
+    border-radius:5px;padding:3px 8px}
+  .slw-arrow{color:var(--slw-faint);font-family:'IBM Plex Mono',monospace;font-size:15px}
+  .slw-card:hover .slw-arrow{color:var(--slw-blue)}
+  .slw-title{font-size:17px;font-weight:700;letter-spacing:-.01em;margin:0 0 3px}
+  .slw-sub{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--slw-dim);margin:0 0 14px}
+  .slw-chips{display:flex;flex-wrap:wrap;gap:6px}
+  .slw-chip{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.04em;
+    border-radius:4px;padding:3px 7px;border:1px solid var(--slw-edge);color:var(--slw-dim)}
+  .slw-chip.g{border-color:rgba(70,201,126,.4);color:var(--slw-green)}
+  .slw-chip.v{border-color:rgba(157,124,240,.4);color:var(--slw-violet)}
+  .slw-chip.a{border-color:rgba(224,162,61,.4);color:var(--slw-amber)}
+  .slw-chip.b{border-color:rgba(61,155,224,.4);color:var(--slw-blue)}
+/* ============================================================
+   ▲▲▲  COPY TO HERE  (end of style block)  ▲▲▲
+   ============================================================ */
+</style>
+</head>
+<body>
+<div class="preview-note">PREVIEW · drop the card next to your Track A–D cards · adjust href to your hosted path</div>
+
+<div class="grid-demo">
+  <div class="ghost">TRACK C</div>
+  <div class="ghost">TRACK D</div>
+
+  <!-- ▼▼▼  COPY FROM HERE — SOLOWAY HUB CARD (markup)  ▼▼▼ -->
+  <a class="slw-card" href="soloway-methodology-reference.html">
+    <div class="slw-top">
+      <span class="slw-ref">Reference · Operator</span>
+      <span class="slw-arrow">↗</span>
+    </div>
+    <p class="slw-title">The Soloway Method</p>
+    <p class="slw-sub">Verified Investing · PPT-derived TA</p>
+    <div class="slw-chips">
+      <span class="slw-chip g">Confirmation</span>
+      <span class="slw-chip v">Cycle</span>
+      <span class="slw-chip a">Time</span>
+      <span class="slw-chip b">AVWAP</span>
+    </div>
+  </a>
+  <!-- ▲▲▲  COPY TO HERE  ▲▲▲ -->
+
+</div>
+</body>
+</html>

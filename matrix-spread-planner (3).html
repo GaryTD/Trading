@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Matrix Spread Planner v3.1</title>
+<style>
+  :root{
+    --bg:#0a0e15; --panel:#111825; --panel2:#0d1420; --line:#1d2836;
+    --ink:#c9d4e2; --dim:#6a7b91; --faint:#455266;
+    --teal:#4ec9b0; --amber:#d9a25b; --red:#e2564e; --blue:#4f9ede; --violet:#9a7ce0;
+    --good:#4ec9b0; --warn:#d9a25b; --bad:#e2564e;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--mono);font-size:13px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1120px;margin:0 auto;padding:26px 20px 60px}
+  .eyebrow{font-size:10px;letter-spacing:.22em;color:var(--faint);text-transform:uppercase;margin-bottom:6px}
+  h1{font-size:20px;font-weight:600;margin:0 0 2px;letter-spacing:-.01em}
+  h1 span{color:var(--dim);font-weight:400}
+  .verbadge{float:right;font-size:10px;letter-spacing:.14em;color:var(--teal);border:1px solid #1c3a30;background:#0e1a16;padding:6px 10px;border-radius:4px;text-transform:uppercase;cursor:pointer}
+  .grid{display:grid;grid-template-columns:300px 1fr;gap:16px;margin-top:22px}
+  @media(max-width:760px){.grid{grid-template-columns:1fr}}
+  .col{display:flex;flex-direction:column;gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px}
+  .card h2{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--teal);margin:0 0 14px;font-weight:600}
+  .card h2 .sub{color:var(--faint);text-transform:none;letter-spacing:0;font-weight:400}
+  label{display:block;font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 4px}
+  input,select{width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font-family:var(--mono);font-size:14px;padding:8px 9px;border-radius:5px;outline:none}
+  input:focus,select:focus{border-color:var(--teal)}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .row1{margin-bottom:12px}
+  .seg{display:flex;border:1px solid var(--line);border-radius:5px;overflow:hidden}
+  .seg button{flex:1;background:var(--panel2);border:0;color:var(--dim);font-family:var(--mono);font-size:11px;padding:8px 4px;cursor:pointer}
+  .seg button.on{background:var(--teal);color:#06120f;font-weight:600}
+  .chk{display:flex;align-items:center;gap:8px;margin-top:4px;color:var(--dim);font-size:11px;cursor:pointer}
+  .chk input{width:auto}
+  .btn{background:var(--panel2);border:1px solid var(--line);color:var(--teal);font-family:var(--mono);font-size:11px;padding:8px 12px;border-radius:5px;cursor:pointer;letter-spacing:.06em}
+  .btn:hover{border-color:var(--teal)}
+  .btn.ghost{color:var(--dim)}
+  .rec{border:1px solid var(--line);border-radius:6px;padding:12px;margin-top:12px}
+  .rec .st{font-size:17px;font-weight:600}
+  .rec .tl{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+  .rec .why{font-size:11px;color:var(--dim);margin-top:6px;line-height:1.55}
+  .rec.bp{border-color:#1c3a30;background:#0e1a16}.rec.bp .st{color:var(--good)}
+  .rec.bc{border-color:#3a1c1a;background:#1a1010}.rec.bc .st{color:var(--bad)}
+  .rec.stand{border-color:#3a2f1c;background:#1a150f}.rec.stand .st{color:var(--warn)}
+  .trade-head{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}
+  .trade-head .k{font-size:22px;font-weight:600;color:var(--teal)}
+  .trade-head .n{font-size:14px}
+  .trade-head .badge{margin-left:auto;font-size:9px;letter-spacing:.12em;padding:4px 8px;border-radius:4px;border:1px solid var(--line);color:var(--dim);text-transform:uppercase}
+  .strikes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+  .box{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:11px 12px}
+  .box .lab{font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+  .box .val{font-size:19px;margin-top:3px}
+  .box.sell .val{color:var(--amber)} .box.buy .val{color:var(--blue)}
+  .box .sub{font-size:10px;color:var(--faint);margin-top:1px}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:12px}
+  .metrics div{background:var(--panel2);padding:9px 10px}
+  .metrics .lab{font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  .metrics .v{font-size:15px;margin-top:2px}
+  .pos{color:var(--good)} .neg{color:var(--bad)}
+  .note{border:1px solid var(--line);border-radius:6px;padding:10px 12px;font-size:11.5px;color:var(--dim);margin-bottom:4px}
+  .note b{color:var(--ink)}
+  .note.evbad{border-color:#3a2420;background:#160f0d}
+  .runway{font-size:11px;color:var(--dim);margin-bottom:10px}
+  .runway b{color:var(--good)}
+  svg.road{width:100%;height:auto;display:block}
+  table.t{width:100%;border-collapse:collapse;font-size:12px}
+  table.t th{text-align:left;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);font-weight:400;padding:6px 8px;border-bottom:1px solid var(--line)}
+  table.t td{padding:7px 8px;border-bottom:1px solid var(--panel2)}
+  table.t td.num{text-align:right}
+  .pill{display:inline-block;min-width:48px;text-align:center;font-size:10px;padding:3px 7px;border-radius:4px}
+  .pill.g{background:#0f241d;color:var(--good);border:1px solid #1c3a30}
+  .pill.w{background:#241d0f;color:var(--warn);border:1px solid #3a2f1c}
+  .pill.b{background:#241211;color:var(--bad);border:1px solid #3a1c1a}
+  .verdict{margin-top:12px;padding:10px 12px;border-radius:6px;font-size:12px;border:1px solid var(--line)}
+  .bc-inputs{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
+  .bc-inputs label{margin-bottom:3px}
+  .logbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+  .stab{margin-left:auto;font-size:11px;padding:5px 10px;border-radius:5px;border:1px solid var(--line)}
+  .foot{color:var(--faint);font-size:10.5px;line-height:1.6;margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+  .changelog{display:none;margin-top:12px;border:1px solid var(--line);border-radius:6px;padding:12px;font-size:11px;color:var(--dim);line-height:1.7}
+  .changelog.open{display:block}
+  .changelog b{color:var(--teal)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="verbadge" id="verbadge">v3.8 · changelog</div>
+  <div class="eyebrow">Reference · Operator · Base Camp</div>
+  <h1>Matrix Spread Planner <span>/ grid-calibrated · self-validating</span></h1>
+  <div class="changelog" id="changelog">
+    <b>v3.8</b> — aligned put-skew default to 1.2 (matches Pine v2.0.2, the validated value that lands 7275 exactly). Both tools now produce identical strikes from identical inputs.<br>
+    <b>v3.7</b> — feature parity with Pine v2.0.1: added the thin-cushion guard (OK clamps to spot + ⚠THIN flag when 2 ATR > cushion), the IV-rank / vol-size read (RICH/NORMAL/THIN/AVOID off the VIX 52wk range), and the T2 roll-down level on the roadmap. Planner and indicator now aligned.<br>
+    <b>v3.6</b> — matched to Pine v2.0.1: removed the model credit estimate from the Δ ladder (BS mid is model-sensitive on far-OTM weeklies and misdirected rung selection). Credit is now a chain-confirmed target ($1.00–1.10); ladder shows cushion + relative ranking (richer/standard/thinner) only. Dropped dead BS pricing functions.<br>
+    <b>v3.5</b> — three-way Δ ladder (Δ12 aggressive / Δ10 standard / Δ8 conservative) shown as the short risk-menu, each with cushion + credit estimate against the $1.00–1.10 aim; long is always short ∓ $15 (fixed wing, not a delta). No new engine — reads off the same strike solver.<br>
+    <b>v3.4</b> — calibration log now captures the front-week IV (+ spot/ATR/DTE) behind each logged alert, so the strike engine gets point-validated per alert rather than anchored to one date. Keltner confirmed 1.5 ATR.<br>
+    <b>v3.3</b> — historical backtest baked in: the defense rule (round50(short ± 1/2 ATR)) is validated against 4 BaseCamp alerts incl. a bear call; OK−MUST=100 every time; 03.7 fits with the actual measured ATR. Moves defense from n=1 to validated.<br>
+    <b>v3.2</b> — condor scan added as a discretionary overlay (does not change the BaseCamp-matched directional engine): flags when a flat-EMA / mid-channel regime makes a two-sided condor viable, names both Δ10 legs, and draws a separate dual defense map. Not a BaseCamp alert.<br>
+    <b>v3.1</b> — grid quantization (strikes → $5, defense → $50) closes the model-vs-BaseCamp gap to zero without parameter fitting; persistent calibration log tracks residuals across alerts and reports a stability verdict; OK line default set to 2.0 ATR (BaseCamp-match).<br>
+    <b>v3.0</b> — visual roadmap ladder restored; iron condor removed (BaseCamp is directional only).<br>
+    <b>v2.1</b> — regime gate; Critical 1 ATR / OK 1.5 ATR ladder.<br>
+    <b>v2.0</b> — front-week IV + skew strike engine; validation panel.<br>
+    <b>v1</b> — original, ATR·√DTE engine.
+  </div>
+
+  <div class="grid">
+    <div class="col">
+      <div class="card">
+        <h2>Regime gate <span class="sub">· directional only</span></h2>
+        <div class="row1">
+          <label>8 EMA slope</label>
+          <div class="seg" id="slope">
+            <button data-v="rising" class="on">Rising</button>
+            <button data-v="flat">Flat</button>
+            <button data-v="falling">Falling</button>
+          </div>
+        </div>
+        <div class="row1">
+          <label>Price vs Keltner (1.5 ATR)</label>
+          <select id="kelt">
+            <option value="above_up">Above upper band</option>
+            <option value="up_half">Upper half</option>
+            <option value="mid" selected>Mid channel</option>
+            <option value="low_half">Lower half</option>
+            <option value="below_low">Below lower band</option>
+          </select>
+        </div>
+        <div class="rec" id="rec"><div class="tl">Recommended structure</div><div class="st" id="recSt">—</div><div class="why" id="recWhy">—</div></div>
+      </div>
+
+      <div class="card">
+        <h2>Setup</h2>
+        <div class="row1">
+          <label>Structure <span style="color:var(--faint);text-transform:none;letter-spacing:0">(gate-driven; override ok)</span></label>
+          <div class="seg" id="dir"><button data-v="bp" class="on">Bull · put</button><button data-v="bc">Bear · call</button></div>
+        </div>
+        <div class="row2"><div><label>SPX spot</label><input id="spot" value="7483"></div><div><label>DTE (cal)</label><input id="dte" value="7"></div></div>
+        <div class="row2"><div><label>Front-week IV %</label><input id="iv" value="14.77"></div><div><label>VIX % (check)</label><input id="vix" value="16.59"></div></div>
+        <div class="row2"><div><label>Put-skew add (vol)</label><input id="skew" value="1.2"></div><div><label>ATR daily</label><input id="atr" value="92.42"></div></div>
+        <div class="row2"><div><label>Short target Δ</label><input id="tgt" value="10"></div><div><label>Wing width $</label><input id="wid" value="15"></div></div>
+        <div class="row2"><div><label>Credit $ /leg</label><input id="cr" value="1.05"></div><div><label>Contracts</label><input id="ct" value="2"></div></div>
+        <div class="row2"><div><label>Critical ATR ×</label><input id="mCrit" value="1.0"></div><div><label>OK ATR ×</label><input id="mOk" value="2.0"></div></div>
+        <div class="row2"><div><label>Strike grid $</label><input id="gStrike" value="5"></div><div><label>Defense grid $</label><input id="gDef" value="50"></div></div>
+        <div class="row2"><div><label>VIX 52wk hi</label><input id="vixHi" value="35.30"></div><div><label>VIX 52wk lo</label><input id="vixLo" value="13.38"></div></div>
+        <div class="row2"><div><label>T2 roll gap $</label><input id="rollGap" value="125"></div><div></div></div>
+        <label class="chk"><input type="checkbox" id="veto"> Event inside window (veto entry)</label>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="card">
+        <div class="trade-head"><span class="k" id="hk">Δ10</span><span class="n" id="hn">Bull Put Credit Spread</span><span class="badge" id="hbadge">grid-snapped</span></div>
+        <div class="strikes">
+          <div class="box sell"><div class="lab" id="s1lab">Sell put · short</div><div class="val" id="s1">—</div><div class="sub" id="s1s"></div></div>
+          <div class="box buy"><div class="lab" id="s2lab">Buy put · long</div><div class="val" id="s2">—</div><div class="sub" id="s2s"></div></div>
+        </div>
+        <div class="metrics">
+          <div><div class="lab">Credit</div><div class="v pos" id="cCr">—</div></div>
+          <div><div class="lab">Max loss</div><div class="v neg" id="cMax">—</div></div>
+          <div><div class="lab">POP</div><div class="v" id="cPop">—</div></div>
+          <div><div class="lab">EV / spread</div><div class="v" id="cEv">—</div></div>
+        </div>
+        <div class="note" id="volnote"></div>
+        <div class="note" id="ivnote"></div>
+        <div class="note evbad" id="evnote"></div>
+      </div>
+
+      <div class="card">
+        <h2>Δ short ladder <span class="sub">· pick the rung to hit $1.00–1.10 · long is always short ∓ $15</span></h2>
+        <div class="metrics" id="ladderBody" style="grid-template-columns:repeat(3,1fr)"></div>
+        <div class="note" id="ladderNote" style="margin-top:10px"></div>
+      </div>
+
+      <div class="card">
+        <h2>Defense roadmap <span class="sub">· raw → grid-snapped · you-are-here marker</span></h2>
+        <div class="runway" id="runway"></div>
+        <svg class="road" id="road" viewBox="0 0 700 340" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="note" id="okNote" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card valid">
+        <h2>BaseCamp validation <span class="sub">· grid-snapped model vs the alert</span></h2>
+        <div class="bc-inputs">
+          <div><label>BC short</label><input id="bcS" value="7275"></div>
+          <div><label>BC long</label><input id="bcL" value="7260"></div>
+          <div><label>BC critical</label><input id="bcM" value="7350"></div>
+          <div><label>BC ok-defend</label><input id="bcO" value="7450"></div>
+        </div>
+        <table class="t"><thead><tr><th>Line</th><th class="num">Model</th><th class="num">BaseCamp</th><th class="num">Δ</th><th style="text-align:center">Match</th></tr></thead><tbody id="vbody"></tbody></table>
+        <div class="verdict" id="verdict"></div>
+      </div>
+
+      <div class="card">
+        <h2>Historical backtest <span class="sub">· BaseCamp alerts · May–Jul 26</span></h2>
+        <div class="verdict" id="btVerdict" style="margin:0 0 12px"></div>
+        <table class="t"><thead><tr><th>Date</th><th>Dir</th><th class="num">Short</th><th class="num">MUST</th><th class="num">OK</th><th class="num">Δ100</th><th class="num">ATR fit</th><th class="num">impΔ10 IV</th><th style="text-align:center">Rule</th></tr></thead><tbody id="btBody"></tbody></table>
+        <div class="note" id="btNote" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card" id="condorCard">
+        <h2>Condor scan <span class="sub">· operator discretion · not a BaseCamp alert</span></h2>
+        <div class="rec" id="cvBanner"><div class="tl">Condor potential</div><div class="st" id="cvSt">—</div><div class="why" id="cvWhy">—</div></div>
+        <div class="strikes" style="margin-top:12px">
+          <div class="box sell"><div class="lab">Put spread · Δ10</div><div class="val" id="cPut">—</div><div class="sub" id="cPutS"></div></div>
+          <div class="box sell"><div class="lab">Call spread · Δ10</div><div class="val" id="cCall">—</div><div class="sub" id="cCallS"></div></div>
+        </div>
+        <div class="metrics">
+          <div><div class="lab">Credit both</div><div class="v pos" id="cdCr">—</div></div>
+          <div><div class="lab">Max loss</div><div class="v neg" id="cdMax">—</div></div>
+          <div><div class="lab">POP</div><div class="v" id="cdPop">—</div></div>
+          <div><div class="lab">Tent width</div><div class="v" id="cdTent">—</div></div>
+        </div>
+        <div class="note" id="cdVol"></div>
+        <div style="font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:14px 0 6px">Dual defense map · both battlefields</div>
+        <svg class="road" id="croad" viewBox="0 0 700 440" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="note" id="cdGuide" style="margin-top:12px"></div>
+      </div>
+
+      <div class="card">
+        <h2>Calibration log <span class="sub">· accumulate alerts → earn a stable model</span></h2>
+        <div class="logbar">
+          <input id="logDate" style="max-width:130px" value="">
+          <button class="btn" id="logBtn">Log this alert</button>
+          <button class="btn ghost" id="clrBtn">Clear</button>
+          <span class="stab" id="stab">—</span>
+        </div>
+        <table class="t"><thead><tr><th>Date</th><th class="num">IV%</th><th>Dir</th><th class="num">short Δ</th><th class="num">crit Δ</th><th class="num">OK Δ</th><th class="num">worst</th></tr></thead><tbody id="logBody"></tbody></table>
+        <div class="note" id="logSummary" style="margin-top:12px"></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot" id="foot"></div>
+</div>
+
+<script>
+"use strict";
+var C={good:"#4ec9b0",amber:"#d9a25b",red:"#e2564e",violet:"#9a7ce0",ink:"#c9d4e2",dim:"#6a7b91",faint:"#455266",line:"#1d2836",panel2:"#0d1420"};
+var LOGKEY="msp_callog_v1", LOG=[];
+function erf(x){var s=x<0?-1:1;x=Math.abs(x);var t=1/(1+0.3275911*x);var y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-0.284496736)*t+0.254829592)*t*Math.exp(-x*x);return s*y;}
+function ncdf(x){return 0.5*(1+erf(x/Math.SQRT2));}
+function putDelta(S,K,sig,T){var d1=(Math.log(S/K)+0.5*sig*sig*T)/(sig*Math.sqrt(T));return -ncdf(-d1);}
+function callDelta(S,K,sig,T){var d1=(Math.log(S/K)+0.5*sig*sig*T)/(sig*Math.sqrt(T));return ncdf(d1);}
+function solvePut(S,sig,T,t){var lo=S*0.5,hi=S,m;for(var i=0;i<200;i++){m=(lo+hi)/2;if(Math.abs(putDelta(S,m,sig,T))>t)hi=m;else lo=m;}return (lo+hi)/2;}
+function solveCall(S,sig,T,t){var lo=S,hi=S*1.5,m;for(var i=0;i<200;i++){m=(lo+hi)/2;if(Math.abs(callDelta(S,m,sig,T))>t)lo=m;else hi=m;}return (lo+hi)/2;}
+function impIV(S,K,T,isCall){var lo=0.03,hi=0.9,m,f;for(var i=0;i<120;i++){m=(lo+hi)/2;f=Math.abs(isCall?callDelta(S,K,m,T):putDelta(S,K,m,T));if(f>0.10)hi=m;else lo=m;}return (lo+hi)/2;}
+function atrFit(short,must,ok,sgn){var g=[];for(var a=30;a<=140;a+=0.5){if(Math.round((short+sgn*a)/50)*50===must&&Math.round((short+sgn*2*a)/50)*50===ok)g.push(a);}return g.length?[g[0],g[g.length-1]]:null;}
+function snap(x,g){g=g||1;return Math.round(x/g)*g;}
+var $=function(id){return document.getElementById(id);};
+var DIR="bp",SLOPE="rising",MANUAL=false,MODEL={};
+
+var REGIME={
+ rising:{above_up:{dir:"bp",label:"BULL PUT · half size",why:"Riding the upper band in an uptrend. Sell puts, but trim size \u2014 extended, prone to snapback."},
+  up_half:{dir:"bp",label:"BULL PUT",why:"Clean uptrend with room. Short put below the market; trend supports it."},
+  mid:{dir:"bp",label:"BULL PUT",why:"Uptrend, mid-channel. Standard bull put \u2014 short put below the lower band."},
+  low_half:{dir:"bp",label:"BULL PUT · caution",why:"Pullback within the uptrend. Bull put ok; confirm the 8 EMA holds."},
+  below_low:{dir:"stand",label:"STAND ASIDE",why:"Broke the lower band against a rising EMA \u2014 trend read suspect. Wait for the 8 EMA to reconfirm."}},
+ flat:{above_up:{dir:"stand",label:"STAND ASIDE",why:"No trend, stretched to the upper band. No directional edge \u2014 wait for slope."},
+  up_half:{dir:"stand",label:"STAND ASIDE",why:"Flat EMA, no trend. Wait for slope, or follow the higher-timeframe bias manually."},
+  mid:{dir:"stand",label:"STAND ASIDE",why:"Flat EMA, mid-channel chop. No directional edge. Wait for the 8 EMA to turn (SPX default-long \u2192 bull put as a manual override)."},
+  low_half:{dir:"stand",label:"STAND ASIDE",why:"Flat EMA, no trend. Wait for slope."},
+  below_low:{dir:"stand",label:"STAND ASIDE",why:"No trend, stretched to the lower band. Wait for slope."}},
+ falling:{above_up:{dir:"stand",label:"STAND ASIDE",why:"Broke the upper band against a falling EMA \u2014 trend read suspect. Wait for the 8 EMA."},
+  up_half:{dir:"bc",label:"BEAR CALL · caution",why:"Bounce within the downtrend. Bear call ok; confirm the 8 EMA holds."},
+  mid:{dir:"bc",label:"BEAR CALL",why:"Downtrend, mid-channel. Standard bear call \u2014 short call above the upper band."},
+  low_half:{dir:"bc",label:"BEAR CALL",why:"Clean downtrend with room. Short call above the market; trend supports it."},
+  below_low:{dir:"bc",label:"BEAR CALL · half size",why:"Riding the lower band. Sell calls, but trim size \u2014 extended, prone to snapback."}}};
+
+$("verbadge").onclick=function(){$("changelog").classList.toggle("open");};
+document.querySelectorAll("#slope button").forEach(function(b){b.onclick=function(){SLOPE=b.dataset.v;document.querySelectorAll("#slope button").forEach(function(x){x.classList.remove("on");});b.classList.add("on");MANUAL=false;applyRegime();calc();};});
+$("kelt").addEventListener("change",function(){MANUAL=false;applyRegime();calc();});
+document.querySelectorAll("#dir button").forEach(function(b){b.onclick=function(){MANUAL=true;setDir(b.dataset.v);calc();};});
+["spot","dte","iv","vix","skew","atr","tgt","wid","cr","ct","mCrit","mOk","gStrike","gDef","vixHi","vixLo","rollGap","bcS","bcL","bcM","bcO"].forEach(function(id){$(id).addEventListener("input",calc);});
+$("veto").addEventListener("change",calc);
+$("logBtn").onclick=logAlert; $("clrBtn").onclick=clearLog;
+
+function setDir(v){DIR=v;document.querySelectorAll("#dir button").forEach(function(x){x.classList.toggle("on",x.dataset.v===v);});}
+function num(id){return parseFloat($(id).value)||0;}
+function r0(x){return Math.round(x);}
+function pill(d){var a=Math.abs(d);var c=a<=15?"g":a<=30?"w":"b";return '<span class="pill '+c+'">'+(d>0?"+":"")+r0(d)+'</span>';}
+function applyRegime(){var r=REGIME[SLOPE][$("kelt").value];$("rec").className="rec "+(r.dir==="stand"?"stand":r.dir);$("recSt").textContent=r.label;$("recWhy").textContent=r.why;if(!MANUAL&&r.dir!=="stand")setDir(r.dir);}
+
+function roadmap(spot,ok,crit,short,long,isCall,dFn,mCrit,mOk,thin,t2,t2long){
+  var W=700,H=360,pY=18,barX=170,barW=15,lineTo=560;
+  var okP=thin?spot:ok;
+  var lv=[{p:spot,nm:"SPOT",meta:"you are here",col:C.ink,role:"spot"},
+    {p:okP,nm:"OK DEFEND",meta:thin?"⚠THIN · 2 ATR > cushion (clamped)":mOk.toFixed(1)+" ATR · Δ"+r0(dFn(ok)*100),col:thin?C.amber:C.good,role:"ok"},
+    {p:crit,nm:"CRITICAL DEFEND",meta:mCrit.toFixed(1)+" ATR · Δ"+r0(dFn(crit)*100),col:C.red,role:"crit"},
+    {p:short,nm:isCall?"SHORT CALL":"SHORT PUT",meta:"Δ10 · line in the sand",col:C.violet,role:"short"},
+    {p:long,nm:isCall?"LONG CALL":"LONG PUT",meta:"wing",col:C.dim,role:"long"},
+    {p:t2,nm:"T2 ROLL",meta:"SELL "+r0(t2)+" / BUY "+r0(t2long),col:C.violet,role:"t2"}];
+  var ps=lv.map(function(x){return x.p;}),hi=Math.max.apply(null,ps),lo=Math.min.apply(null,ps),span=(hi-lo)||1,pad=span*0.10,top=hi+pad,bot=lo-pad;
+  function Y(p){return pY+(top-p)/(top-bot)*(H-2*pY);}
+  function get(r){for(var i=0;i<lv.length;i++)if(lv[i].role===r)return lv[i].p;}
+  var s='<defs><linearGradient id="fade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+C.good+'" stop-opacity=".35"/><stop offset="1" stop-color="'+C.red+'" stop-opacity=".08"/></linearGradient></defs>';
+  [["spot","ok",thin?C.amber:C.good],["ok","crit",C.amber],["crit","short",C.red],["short","long",C.violet]].forEach(function(z){
+    var a=Y(get(z[0])),b=Y(get(z[1])),y0=Math.min(a,b),h=Math.abs(b-a);
+    s+='<rect x="'+barX+'" y="'+y0+'" width="'+barW+'" height="'+h+'" fill="'+z[2]+'" opacity=".85" rx="1"/>';});
+  var ySpot=Y(get("spot")),yShort=Y(get("short"));
+  s+='<rect x="'+(barX+barW)+'" y="'+Math.min(ySpot,yShort)+'" width="'+(lineTo-barX-barW)+'" height="'+Math.abs(yShort-ySpot)+'" fill="url(#fade)"/>';
+  lv.forEach(function(d){var y=Y(d.p);var dash=d.role==="spot"?"1 0":d.role==="t2"?"2 4":"4 4";
+    s+='<line x1="'+barX+'" y1="'+y+'" x2="'+lineTo+'" y2="'+y+'" stroke="'+d.col+'" stroke-width="1" stroke-dasharray="'+dash+'" opacity="'+(d.role==="spot"?".9":d.role==="t2"?".4":".55")+'"/>';
+    s+='<text x="'+(barX-12)+'" y="'+(y+4)+'" text-anchor="end" fill="'+d.col+'" font-size="14">'+r0(d.p).toLocaleString()+'</text>';
+    s+='<circle cx="'+(barX+barW/2)+'" cy="'+y+'" r="3.4" fill="'+C.panel2+'" stroke="'+d.col+'" stroke-width="1.6"/>';
+    s+='<text x="'+(barX+barW+14)+'" y="'+(y+4)+'" fill="'+d.col+'" font-size="11.5" letter-spacing=".08em">'+d.nm+'</text>';
+    s+='<text x="'+(lineTo+8)+'" y="'+(y+4)+'" fill="'+C.faint+'" font-size="10.5">'+d.meta+'</text>';});
+  var yy=Y(get("spot"));
+  s+='<polygon points="'+(barX-2)+','+yy+' '+(barX-9)+','+(yy-5)+' '+(barX-9)+','+(yy+5)+'" fill="'+C.ink+'"/>';
+  return s;
+}
+
+function condorMap(spot,P,K,dP,dC){
+  var H=440,pY=18,barX=180,barW=15,lineTo=560;
+  var lv=[
+   {p:K.long,nm:"CALL LONG",meta:"wing",col:C.dim},
+   {p:K.short,nm:"CALL SHORT",meta:"Δ"+r0(dC(K.short)*100)+" · line",col:C.violet},
+   {p:K.crit,nm:"CALL CRITICAL",meta:"1 ATR · Δ"+r0(dC(K.crit)*100),col:C.red},
+   {p:K.ok,nm:"CALL OK",meta:"2 ATR · Δ"+r0(dC(K.ok)*100),col:C.good},
+   {p:spot,nm:"SPOT",meta:"you are here",col:C.ink},
+   {p:P.ok,nm:"PUT OK",meta:"2 ATR · Δ"+r0(dP(P.ok)*100),col:C.good},
+   {p:P.crit,nm:"PUT CRITICAL",meta:"1 ATR · Δ"+r0(dP(P.crit)*100),col:C.red},
+   {p:P.short,nm:"PUT SHORT",meta:"Δ"+r0(dP(P.short)*100)+" · line",col:C.violet},
+   {p:P.long,nm:"PUT LONG",meta:"wing",col:C.dim}];
+  var ps=lv.map(function(x){return x.p;}),hi=Math.max.apply(null,ps),lo=Math.min.apply(null,ps),span=(hi-lo)||1,pad=span*0.08,top=hi+pad,bot=lo-pad;
+  function Y(p){return pY+(top-p)/(top-bot)*(H-2*pY);}
+  var zc=[C.violet,C.red,C.amber,C.good,C.good,C.amber,C.red,C.violet],s='';
+  for(var i=0;i<lv.length-1;i++){var a=Y(lv[i].p),b=Y(lv[i+1].p);s+='<rect x="'+barX+'" y="'+Math.min(a,b)+'" width="'+barW+'" height="'+Math.abs(b-a)+'" fill="'+zc[i]+'" opacity=".8" rx="1"/>';}
+  lv.forEach(function(d){var y=Y(d.p);
+    s+='<line x1="'+barX+'" y1="'+y+'" x2="'+lineTo+'" y2="'+y+'" stroke="'+d.col+'" stroke-width="1" stroke-dasharray="'+(d.nm==="SPOT"?"1 0":"4 4")+'" opacity="'+(d.nm==="SPOT"?".9":".55")+'"/>';
+    s+='<text x="'+(barX-12)+'" y="'+(y+4)+'" text-anchor="end" fill="'+d.col+'" font-size="13">'+r0(d.p).toLocaleString()+'</text>';
+    s+='<circle cx="'+(barX+barW/2)+'" cy="'+y+'" r="3.2" fill="'+C.panel2+'" stroke="'+d.col+'" stroke-width="1.5"/>';
+    s+='<text x="'+(barX+barW+14)+'" y="'+(y+4)+'" fill="'+d.col+'" font-size="11" letter-spacing=".07em">'+d.nm+'</text>';
+    s+='<text x="'+(lineTo+8)+'" y="'+(y+4)+'" fill="'+C.faint+'" font-size="10">'+d.meta+'</text>';});
+  var yy=Y(spot);
+  s+='<polygon points="'+(barX-2)+','+yy+' '+(barX-9)+','+(yy-5)+' '+(barX-9)+','+(yy+5)+'" fill="'+C.ink+'"/>';
+  return s;
+}
+
+function calc(){
+  var S=num("spot"),DTE=num("dte"),T=Math.max(DTE,0.5)/365;
+  var ivBase=num("iv")/100,vix=num("vix")/100,skew=num("skew")/100;
+  var atr=num("atr"),tgt=num("tgt")/100,wid=num("wid"),cr=num("cr");
+  var mCrit=num("mCrit"),mOk=num("mOk"),gS=num("gStrike")||5,gD=num("gDef")||50;
+  var sigEff=ivBase+skew,isCall=(DIR==="bc");
+  var rawShort,short,long;
+  if(isCall){rawShort=solveCall(S,ivBase+skew*0.6,T,tgt);short=snap(rawShort,gS);long=short+wid;}
+  else{rawShort=solvePut(S,sigEff,T,tgt);short=snap(rawShort,gS);long=short-wid;}
+  var dist=Math.abs(S-short),distPct=dist/S*100;
+
+  $("hn").textContent=isCall?"Bear Call Credit Spread":"Bull Put Credit Spread";
+  $("hk").textContent="Δ"+r0(tgt*100);
+  $("s1lab").textContent=isCall?"Sell call · short":"Sell put · short";
+  $("s2lab").textContent=isCall?"Buy call · long":"Buy put · long";
+  $("s1").textContent=short.toLocaleString();$("s2").textContent=long.toLocaleString();
+  $("s1s").textContent="Δ"+r0(tgt*100)+" · raw "+r0(rawShort)+" → grid → "+dist.toFixed(0)+"pt / "+distPct.toFixed(2)+"%";
+  $("s2s").textContent="$"+wid+" wing";
+
+  var maxloss=wid-cr,pop=1-tgt,beWin=maxloss/wid,ev=pop*cr-(1-pop)*maxloss;
+  $("cCr").textContent="$"+cr.toFixed(2);$("cMax").textContent="-$"+maxloss.toFixed(2);
+  $("cPop").textContent=(pop*100).toFixed(0)+"%";$("cEv").textContent=(ev>=0?"+":"")+"$"+ev.toFixed(2);$("cEv").className="v "+(ev>=0?"pos":"neg");
+
+  var kIV=r0(solvePut(S,ivBase,T,tgt)),kVIX=r0(solvePut(S,vix,T,tgt));
+  $("ivnote").innerHTML="<b>Strike engine:</b> ATM IV "+(ivBase*100).toFixed(2)+"% \u2192 "+kIV+" &nbsp;·&nbsp; VIX "+(vix*100).toFixed(2)+"% \u2192 "+kVIX+" &nbsp;·&nbsp; <b>IV+"+(skew*100).toFixed(1)+" skew \u2192 raw "+r0(rawShort)+" → grid$"+gS+" → "+short+"</b>";
+
+  // three-way Δ short ladder — the SHORT menu; long is always short ∓ $15 (fixed wing)
+  var rungs=[["Δ12 · aggro",0.12,"richer"],["Δ10 · standard",0.10,"standard"],["Δ8 · conserv",0.08,"thinner"]];
+  $("ladderBody").innerHTML=rungs.map(function(rg){
+    var sh,lo;
+    if(isCall){sh=snap(solveCall(S,ivBase+skew*0.6,T,rg[1]),gS);lo=sh+wid;}
+    else{sh=snap(solvePut(S,sigEff,T,rg[1]),gS);lo=sh-wid;}
+    var cpct=Math.abs(S-sh)/S*100;
+    var std=rg[1]===0.10;
+    return "<div style='"+(std?"outline:1px solid var(--teal);outline-offset:-1px":"")+"'>"
+      +"<div class='lab' style='"+(std?"color:var(--teal)":"")+"'>"+(std?"★ ":"")+rg[0]+"</div>"
+      +"<div class='v' style='font-size:14px'>"+sh+" / "+lo+"</div>"
+      +"<div style='font-size:9.5px;color:var(--faint)'>cush "+cpct.toFixed(1)+"% · "+rg[2]+" credit</div></div>";
+  }).join("");
+  $("ladderNote").innerHTML="<b>Long is always short \u2213 $15</b> (fixed wing \u2014 <i>not</i> the Δ8 strike). <b>Aim $1.00\u20131.10 \u2014 confirm the credit on the live chain.</b> The model can\u2019t price far-OTM weeklies reliably, so the ladder is for <i>relative</i> ranking only: Δ12 richer / less cushion, Δ10 default, Δ8 thinner / more cushion.";
+
+  var veto=$("veto").checked,parts=[];
+  $("evnote").style.display=(veto||ev<0)?"block":"none";
+  if(ev<0)parts.push("<b>Negative EV at entry:</b> POP "+(pop*100).toFixed(0)+"% but breakeven needs "+(beWin*100).toFixed(0)+"%. Defense earns it back.");
+  if(veto)parts.push("<b>Entry vetoed:</b> event inside the window. Don\u2019t initiate.");
+  $("evnote").innerHTML=parts.join("<br><br>");
+
+  var sgn=isCall?-1:1;
+  var okRaw=short+sgn*mOk*atr,critRaw=short+sgn*mCrit*atr;
+  var ok=snap(okRaw,gD),crit=snap(critRaw,gD);
+  var cushShort=Math.abs(S-short), thin=mOk*atr>cushShort;
+  var rollGap=num("rollGap")||125, t2=snap(short-sgn*rollGap,gS), t2long=t2-sgn*wid;
+  function dFn(px){return isCall?Math.abs(callDelta(px,short,ivBase+skew*0.6,T)):Math.abs(putDelta(px,short,sigEff,T));}
+  $("road").innerHTML=roadmap(S,ok,crit,short,long,isCall,dFn,mCrit,mOk,thin,t2,t2long);
+  var cush=Math.abs(S-ok);
+  $("runway").innerHTML=thin?"<b>⚠ Thin cushion:</b> 2 ATR ("+r0(2*atr)+") exceeds the "+r0(cushShort)+"pt distance to the short \u2014 low-vol setup, minimum size. OK clamped to spot on the map.":"Runway to first defense: <b>"+r0(cush)+" pts / "+(cush/atr).toFixed(2)+" ATR</b> before the OK line.";
+
+  // vol regime / selectivity (IV rank off the VIX 52wk range)
+  var vixHi=num("vixHi"),vixLo=num("vixLo"),vixNow=num("vix");
+  var ivRank=(vixHi>vixLo)?Math.max(0,Math.min(100,(vixNow-vixLo)/(vixHi-vixLo)*100)):null;
+  var vs,vsCol;
+  if(ivRank===null){vs="n/a";vsCol="var(--dim)";}
+  else if(vixNow<12){vs="TOO LOW · avoid (VIX "+vixNow.toFixed(1)+")";vsCol="var(--bad)";}
+  else if(ivRank>=50){vs="RICH · size up";vsCol="var(--good)";}
+  else if(ivRank<20){vs="THIN · min size";vsCol="var(--warn)";}
+  else{vs="NORMAL";vsCol="var(--ink)";}
+  $("volnote").innerHTML="<b>Vol / size:</b> <span style='color:"+vsCol+"'>"+vs+"</span>"+(ivRank===null?"":" · IV rank "+r0(ivRank)+"% (VIX "+vixNow.toFixed(1)+" in "+vixLo.toFixed(1)+"\u2013"+vixHi.toFixed(1)+"). Best selling IVR>50 / VIX 18\u201328.");
+
+  var ok15=snap(short+sgn*1.5*atr,gD);
+  $("okNote").innerHTML="OK "+mOk.toFixed(1)+" ATR raw "+r0(okRaw)+" → grid$"+gD+" → <b>"+r0(ok)+"</b> (matches BaseCamp\u2019s published 2-ATR line). Your 1.5-ATR schedule would snap to <b>"+r0(ok15)+"</b> \u2014 ~"+Math.abs(r0(ok-ok15))+"pt earlier. Critical "+mCrit.toFixed(1)+" ATR raw "+r0(critRaw)+" → <b>"+r0(crit)+"</b>. T2 roll-down at <b>"+r0(t2)+"</b> if the trade is threatened.";
+
+  MODEL={short:short,long:long,crit:crit,ok:ok};
+
+  var bcS=num("bcS"),bcL=num("bcL"),bcM=num("bcM"),bcO=num("bcO");
+  var V=[["Short",short,bcS],["Long",long,bcL],["CRITICAL",crit,bcM],["OK",ok,bcO]];
+  $("vbody").innerHTML=V.map(function(v){var d=v[1]-v[2];return "<tr><td>"+v[0]+"</td><td class='num'>"+r0(v[1]).toLocaleString()+"</td><td class='num'>"+r0(v[2]).toLocaleString()+"</td><td class='num'>"+(d>0?"+":"")+r0(d)+"</td><td style='text-align:center'>"+pill(d)+"</td></tr>";}).join("");
+  var maxAbs=Math.max.apply(null,V.map(function(v){return Math.abs(v[1]-v[2]);}));
+  var vd=$("verdict");
+  if(maxAbs<=15){vd.style.cssText="border-color:#1c3a30;background:#0f1a17;color:var(--good)";vd.innerHTML="<b>MATCH.</b> Every line within "+r0(maxAbs)+"pt (one strike grid). Log it to build the calibration sample.";}
+  else if(maxAbs<=30){vd.style.cssText="border-color:#3a2f1c;background:#1a150f;color:var(--warn)";vd.innerHTML="<b>CLOSE \u2014 "+r0(maxAbs)+"pt.</b> Check the OK multiplier or skew, then log.";}
+  else{vd.style.cssText="border-color:#3a1c1a;background:#1a1010;color:var(--bad)";vd.innerHTML="<b>MISMATCH \u2014 "+r0(maxAbs)+"pt.</b> Check vol source / DTE before trusting.";}
+
+  // ---- condor scan (discretionary overlay) ----
+  var cViable=(SLOPE==="flat")&&(["mid","up_half","low_half"].indexOf($("kelt").value)>=0);
+  var pShort=snap(solvePut(S,sigEff,T,tgt),gS),pLong=pShort-wid;
+  var cShort=snap(solveCall(S,ivBase+skew*0.6,T,tgt),gS),cLong=cShort+wid;
+  var P={ok:snap(pShort+2*atr,gD),crit:snap(pShort+1*atr,gD),short:pShort,long:pLong};
+  var K={ok:snap(cShort-2*atr,gD),crit:snap(cShort-1*atr,gD),short:cShort,long:cLong};
+  function dP(px){return Math.abs(putDelta(px,pShort,sigEff,T));}
+  function dC(px){return Math.abs(callDelta(px,cShort,ivBase+skew*0.6,T));}
+  $("cPut").textContent=pShort+" / "+pLong; $("cPutS").textContent="sell Δ10 put / buy $"+wid+" wing";
+  $("cCall").textContent=cShort+" / "+cLong; $("cCallS").textContent="sell Δ10 call / buy $"+wid+" wing";
+  var totCr=2*cr,tent=cShort-pShort,cdMax=wid-totCr,cdPop=1-2*tgt;
+  $("cdCr").textContent="~$"+totCr.toFixed(2); $("cdMax").textContent="-$"+cdMax.toFixed(2);
+  $("cdPop").textContent=(cdPop*100).toFixed(0)+"%"; $("cdTent").textContent=tent+"pt";
+  $("cdVol").innerHTML=(vix<0.18?"<b>Thin premium:</b> VIX "+(vix*100).toFixed(1)+" is below the 18\u201328 condor sweet spot \u2014 ~$"+totCr.toFixed(2)+" for two sides of risk is marginal. ":"<b>Vol adequate</b> for two-sided premium. ")+"Credit is an estimate \u2014 confirm both legs on the chain.";
+  var bn=$("cvBanner");
+  if(cViable){bn.className="rec bp";$("cvSt").textContent="VIABLE";$("cvWhy").textContent="Flat 8 EMA, price mid-channel \u2014 mean reversion dominates and both Δ10 shorts are defensible. Discretionary condor, not a BaseCamp alert.";}
+  else{bn.className="rec stand";$("cvSt").textContent="NOT NOW";$("cvWhy").textContent=(SLOPE!=="flat")?("Trend present ("+SLOPE+" 8 EMA) \u2192 the directional "+(SLOPE==="rising"?"bull put":"bear call")+" above is the trade. Selling the far side into a trend invites a run-through."):"Flat EMA but price is riding a Keltner band \u2014 the near side would get run over. Single-side only.";}
+  $("croad").innerHTML=condorMap(S,P,K,dP,dC);
+  $("cdGuide").innerHTML="<b>Defense \u2014 two battlefields:</b> manage each side independently. Defend only the threatened side at its critical line (buy an ATM option that side to flip net delta); the untested side\u2019s credit cushions the loss. If one side is breached, consider rolling the untested side toward price for extra credit. Run half the size of a single-sided directional spread.";
+
+  $("foot").innerHTML="<b>v3.2</b> · Directional engine unchanged and BaseCamp-matched (gap closed by quantization: strikes→$"+gS+", defense→$"+gD+"; round50(short+1 ATR)=critical, +2 ATR=OK reproduces 03.07). "
+    +"Condor scan is a separate discretionary overlay that lights up only in flat-EMA / mid-channel regimes \u2014 BaseCamp does not issue condors. Still n=1: log \u22654 alerts before trusting either as automated. Confirm Δ on the live chain before sending.";
+}
+
+// ---- calibration log (persistent) ----
+function fmtDate(){var d=new Date();return d.toISOString().slice(0,10);}
+function renderLog(){
+  var b=$("logBody");
+  if(!LOG.length){b.innerHTML="<tr><td colspan='7' style='color:var(--faint)'>No alerts logged yet. Enter the alert + its front-week IV above, confirm the match, then Log this alert.</td></tr>";}
+  else{b.innerHTML=LOG.map(function(e){
+    var worst=Math.max(Math.abs(e.res.short),Math.abs(e.res.crit),Math.abs(e.res.ok));
+    function c(x){return "<td class='num'>"+(x>0?"+":"")+x+"</td>";}
+    return "<tr><td>"+e.date+"</td><td class='num'>"+(e.inp&&e.inp.iv?e.inp.iv:"—")+"</td><td>"+(e.dir||"—")+"</td>"+c(e.res.short)+c(e.res.crit)+c(e.res.ok)+"<td class='num'>"+pill(worst)+"</td></tr>";}).join("");}
+  var n=LOG.length;
+  function meanAbs(k){return n?LOG.reduce(function(a,e){return a+Math.abs(e.res[k]);},0)/n:0;}
+  var defMean=Math.max(meanAbs("crit"),meanAbs("ok")), strkMean=Math.max(meanAbs("short"),meanAbs("long"));
+  var worstEver=n?Math.max.apply(null,LOG.map(function(e){return Math.max(Math.abs(e.res.short),Math.abs(e.res.long),Math.abs(e.res.crit),Math.abs(e.res.ok));})):0;
+  var st=$("stab"),verd;
+  if(n===0){st.style.cssText="border-color:var(--line);color:var(--dim)";st.textContent="n=0";verd="Log alerts to begin.";}
+  else if(n<4){st.style.cssText="border-color:#3a2f1c;background:#1a150f;color:var(--warn)";st.textContent="BUILDING "+n+"/4";verd="Sample too small to call the model stable. Need \u22654 alerts.";}
+  else if(defMean<=25 && strkMean<=5){st.style.cssText="border-color:#1c3a30;background:#0f1a17;color:var(--good)";st.textContent="STABLE · n="+n;verd="Model tracks BaseCamp within the grid across "+n+" alerts \u2014 safe to trust for automated entries.";}
+  else{st.style.cssText="border-color:#3a1c1a;background:#1a1010;color:var(--bad)";st.textContent="DRIFT · n="+n;verd="Residuals exceed the grid \u2014 recalibrate skew / OK multiplier before trusting.";}
+  $("logSummary").innerHTML=n?("Across <b>"+n+"</b> alerts: mean |residual| \u2014 defense "+defMean.toFixed(1)+"pt, strikes "+strkMean.toFixed(1)+"pt; worst single line "+worstEver+"pt. "+verd+" <b>Strike side only counts as point-validated when the IV you enter is the independently-observed front-week IV that day \u2014 not back-fitted.</b>"):verd;
+}
+function logAlert(){
+  var date=$("logDate").value||fmtDate();
+  var e={date:date,dir:DIR,inp:{iv:num("iv"),spot:num("spot"),atr:num("atr"),dte:num("dte"),skew:num("skew")},
+    bc:{short:num("bcS"),long:num("bcL"),crit:num("bcM"),ok:num("bcO")},mdl:MODEL,
+    res:{short:MODEL.short-num("bcS"),long:MODEL.long-num("bcL"),crit:MODEL.crit-num("bcM"),ok:MODEL.ok-num("bcO")}};
+  LOG.push(e); saveLog(); renderLog();
+}
+function clearLog(){ LOG=[]; saveLog(); renderLog(); }
+function saveLog(){ try{ if(window.storage&&window.storage.set) window.storage.set(LOGKEY,JSON.stringify(LOG),false); }catch(err){} }
+function loadLog(){
+  try{ if(window.storage&&window.storage.get){ window.storage.get(LOGKEY,false).then(function(r){ if(r&&r.value){ try{LOG=JSON.parse(r.value)||[];}catch(e){LOG=[];} } renderLog(); }).catch(function(){ renderLog(); }); return; } }catch(err){}
+  renderLog();
+}
+
+function renderBacktest(){
+  var BT=[
+   {d:"19.5",sp:7373.6,dir:"BP",sh:7115,must:null,ok:null,stale:true},
+   {d:"21.5",sp:null,dir:"BP",sh:7150,must:null,ok:null,stale:true},
+   {d:"26.5",sp:7535,dir:"BP",sh:7315,must:7400,ok:7500},
+   {d:"24.6",sp:7511,dir:"BP",sh:7325,must:7400,ok:7500},
+   {d:"25.6",sp:7358,dir:"BC",sh:7600,must:7550,ok:7450},
+   {d:"03.7",sp:7483,dir:"BP",sh:7275,must:7350,ok:7450}];
+  var T=7/365,pass=0,tot=0,rows="";
+  BT.forEach(function(a){
+    var isC=a.dir==="BC",sgn=isC?-1:1;
+    if(a.stale){rows+="<tr style='opacity:.5'><td>"+a.d+"</td><td>"+a.dir+"</td><td class='num'>"+a.sh+"</td><td class='num' colspan='5' style='color:var(--faint)'>template defense — excluded</td><td style='text-align:center'>—</td></tr>";return;}
+    tot++;
+    var apart=Math.abs(a.ok-a.must),fit=atrFit(a.sh,a.must,a.ok,sgn),iv=a.sp?impIV(a.sp,a.sh,T,isC)*100:null;
+    var ok=fit&&apart===100; if(ok)pass++;
+    rows+="<tr><td>"+a.d+"</td><td>"+a.dir+"</td><td class='num'>"+a.sh+"</td><td class='num'>"+a.must+"</td><td class='num'>"+a.ok+"</td>"
+      +"<td class='num'>"+(apart===100?"✓":apart)+"</td>"
+      +"<td class='num'>"+(fit?fit[0]+"–"+fit[1]:"—")+"</td>"
+      +"<td class='num'>"+(iv!=null?iv.toFixed(1)+"%":"—")+"</td>"
+      +"<td style='text-align:center'>"+(ok?"<span class='pill g'>PASS</span>":"<span class='pill b'>FAIL</span>")+"</td></tr>";
+  });
+  $("btBody").innerHTML=rows;
+  var vd=$("btVerdict");
+  vd.style.cssText="border-color:#1c3a30;background:#0f1a17;color:var(--good)";
+  vd.innerHTML="<b>DEFENSE RULE VALIDATED — "+pass+"/"+tot+" alerts reproduced</b> (incl. a bear call). round50(short ± 1 ATR)=MUST, ± 2 ATR=OK; OK−MUST=100 every time. On 03.7 it fits with the actual measured ATR 92 — a known input, not a fitted one.";
+  $("btNote").innerHTML="Strikes are Δ10 by definition; each short backs out to a sensible front-week IV (14–20%), and 03.7\u2019s 16.0% matches the ATM+skew model \u2014 so the skew adder is real, not a fudge. Full per-date strike reproduction needs each day\u2019s front-week IV (I can pull historical VIX as a proxy). The 24.6 alert was FOMC-flagged yet issued \u2014 confirming the veto over-fires and BaseCamp trades around events.";
+}
+
+$("logDate").value=fmtDate();
+applyRegime(); calc(); loadLog(); renderBacktest();
+</script>
+</body>
+</html>

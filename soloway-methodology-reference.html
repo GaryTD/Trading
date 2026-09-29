@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Soloway Method — Reference Entry</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* instrument panel base */
+    --bg:#0a0d12;
+    --panel:#11161e;
+    --panel-2:#0d1219;
+    --edge:#1e2730;
+    --edge-hot:#2b3744;
+    --ink:#e6edf3;
+    --ink-dim:#8b97a5;
+    --ink-faint:#5a6573;
+
+    /* five-color defense / identity system */
+    --blue:#3d9be0;     /* structural / VWAP institutional value */
+    --red:#e0544e;      /* invalidation / risk */
+    --amber:#e0a23d;    /* timing / patience */
+    --green:#46c97e;    /* confirmation / go */
+    --violet:#9d7cf0;   /* cycle / regime / macro */
+
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+  }
+
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--sans);line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    background-image:
+      radial-gradient(circle at 18% -10%, rgba(61,155,224,.06), transparent 40%),
+      radial-gradient(circle at 90% 8%, rgba(157,124,240,.05), transparent 45%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:32px 20px 80px}
+
+  /* ---- header ---- */
+  header.masthead{
+    border:1px solid var(--edge);background:var(--panel);
+    border-radius:10px;padding:22px 24px;
+    display:flex;flex-wrap:wrap;gap:18px;align-items:flex-end;justify-content:space-between;
+    position:relative;overflow:hidden;
+  }
+  header.masthead::before{
+    content:"";position:absolute;inset:0 auto 0 0;width:3px;
+    background:linear-gradient(var(--green),var(--violet),var(--amber),var(--blue));
+  }
+  .eyebrow{
+    font-family:var(--mono);font-size:11px;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--ink-faint);margin:0 0 8px;
+  }
+  h1{font-size:30px;line-height:1.05;margin:0;font-weight:700;letter-spacing:-.01em}
+  h1 .sub{display:block;font-size:14px;font-weight:500;color:var(--ink-dim);
+    letter-spacing:0;margin-top:7px;font-family:var(--mono)}
+  .tag{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;
+    border:1px solid var(--edge-hot);border-radius:5px;padding:5px 9px;color:var(--ink-dim);
+    white-space:nowrap;
+  }
+
+  /* ---- thesis ---- */
+  .thesis{
+    margin-top:18px;border:1px solid var(--edge);border-left:3px solid var(--ink-faint);
+    background:var(--panel-2);border-radius:8px;padding:18px 22px;
+  }
+  .thesis p{margin:0 0 10px}
+  .thesis p:last-child{margin-bottom:0}
+  .thesis strong{color:var(--ink)}
+  .lede{font-size:15.5px}
+  .kicker{font-family:var(--mono);color:var(--green);font-size:12px;letter-spacing:.04em}
+
+  /* ---- pillar grid ---- */
+  .stack{margin-top:26px;display:grid;gap:18px}
+  .pillar{
+    border:1px solid var(--edge);background:var(--panel);border-radius:10px;
+    padding:0;overflow:hidden;
+  }
+  .pillar .head{
+    display:flex;align-items:center;gap:14px;padding:16px 22px;
+    border-bottom:1px solid var(--edge);
+    background:linear-gradient(180deg, rgba(255,255,255,.015), transparent);
+  }
+  .idx{
+    font-family:var(--mono);font-size:12px;font-weight:600;
+    width:34px;height:34px;flex:0 0 34px;border-radius:7px;
+    display:grid;place-items:center;border:1px solid var(--edge-hot);
+  }
+  .pillar .head h2{margin:0;font-size:18px;font-weight:600;letter-spacing:-.01em}
+  .pillar .head .label{
+    font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-faint);margin-top:3px;display:block;
+  }
+  .pillar .body{padding:18px 22px 22px}
+  .pillar .body > p{margin:0 0 14px;color:var(--ink-dim)}
+  .pillar .body > p strong{color:var(--ink);font-weight:600}
+
+  .row{display:grid;grid-template-columns:120px 1fr;gap:14px;
+    padding:11px 0;border-top:1px dashed var(--edge);align-items:start}
+  .row:first-of-type{border-top:0}
+  .row .k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ink-faint);padding-top:2px}
+  .row .v{font-size:14.5px}
+  .row .v code{font-family:var(--mono);font-size:13px;background:var(--panel-2);
+    border:1px solid var(--edge);border-radius:4px;padding:1px 6px;color:var(--ink)}
+
+  /* hook into stack callout */
+  .hook{
+    margin-top:16px;border-radius:7px;padding:13px 16px;font-size:13.5px;
+    border:1px solid var(--edge);background:var(--panel-2);
+  }
+  .hook .hl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+    display:block;margin-bottom:5px;color:var(--ink-faint)}
+
+  /* color identity per pillar */
+  .c-green .idx{color:var(--green);border-color:rgba(70,201,126,.4);box-shadow:0 0 0 1px rgba(70,201,126,.08) inset}
+  .c-green .head{border-bottom-color:rgba(70,201,126,.22)}
+  .c-green .hook{border-left:3px solid var(--green)}
+  .c-violet .idx{color:var(--violet);border-color:rgba(157,124,240,.4)}
+  .c-violet .head{border-bottom-color:rgba(157,124,240,.22)}
+  .c-violet .hook{border-left:3px solid var(--violet)}
+  .c-amber .idx{color:var(--amber);border-color:rgba(224,162,61,.4)}
+  .c-amber .head{border-bottom-color:rgba(224,162,61,.22)}
+  .c-amber .hook{border-left:3px solid var(--amber)}
+  .c-blue .idx{color:var(--blue);border-color:rgba(61,155,224,.4)}
+  .c-blue .head{border-bottom-color:rgba(61,155,224,.22)}
+  .c-blue .hook{border-left:3px solid var(--blue)}
+
+  /* ---- cross-reference matrix ---- */
+  .matrix{margin-top:26px;border:1px solid var(--edge);background:var(--panel);border-radius:10px;overflow:hidden}
+  .matrix h2{margin:0;padding:16px 22px;font-size:16px;border-bottom:1px solid var(--edge);
+    font-family:var(--mono);letter-spacing:.04em}
+  .matrix table{width:100%;border-collapse:collapse;font-size:13.5px}
+  .matrix td{padding:12px 22px;border-top:1px solid var(--edge);vertical-align:top}
+  .matrix tr td:first-child{font-family:var(--mono);font-size:12px;color:var(--ink);width:200px;white-space:nowrap}
+  .matrix td .t{font-family:var(--mono);font-size:10px;letter-spacing:.1em;color:var(--ink-faint);display:block}
+  .matrix td:last-child{color:var(--ink-dim)}
+
+  /* ---- caveats ---- */
+  .caveat{
+    margin-top:24px;border:1px solid rgba(224,84,78,.3);border-left:3px solid var(--red);
+    background:rgba(224,84,78,.04);border-radius:8px;padding:18px 22px;
+  }
+  .caveat h2{margin:0 0 10px;font-size:14px;font-family:var(--mono);letter-spacing:.1em;
+    text-transform:uppercase;color:var(--red)}
+  .caveat ul{margin:0;padding-left:18px}
+  .caveat li{margin:6px 0;font-size:13.5px;color:var(--ink-dim)}
+  .caveat li strong{color:var(--ink)}
+
+  footer.foot{margin-top:30px;text-align:center;font-family:var(--mono);
+    font-size:11px;letter-spacing:.06em;color:var(--ink-faint)}
+  footer.foot a{color:var(--blue);text-decoration:none}
+
+  @media (max-width:640px){
+    h1{font-size:24px}
+    .row{grid-template-columns:1fr;gap:4px}
+    .row .k{padding-top:0}
+    .matrix tr td:first-child{width:auto}
+    .matrix td{padding:12px 16px}
+    .pillar .body,.pillar .head{padding-left:16px;padding-right:16px}
+  }
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  :focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">Methodology Reference · External Operator</p>
+      <h1>The Soloway Method
+        <span class="sub">Gareth Soloway · Verified Investing · PPT-derived discretionary TA</span>
+      </h1>
+    </div>
+    <span class="tag">Read-first synthesis</span>
+  </header>
+
+  <section class="thesis">
+    <p class="lede"><span class="kicker">CORE STANCE&nbsp;›</span> <strong>Measure, don't predict.</strong>
+    Map the obvious higher-timeframe levels, define invalidation first, then wait for price to <em>prove</em>
+    the move before acting. The edge is probability stacking from clean confluence — not calling the exact top or bottom.</p>
+    <p>Soloway is a 26-year discretionary swing/day trader and co-developer of the <strong>PPT (Pivot Point Trading) methodology</strong>
+    (built with Nicholas Santiago at InTheMoneyStocks, 2007 → Verified Investing). The toolkit is deliberately lean —
+    candlesticks, clean trendlines, double tops/bottoms, Fibonacci, a handful of moving averages, and the four proprietary
+    layers below. No indicator soup. Clutter kills conviction.</p>
+  </section>
+
+  <div class="stack">
+
+    <!-- 1 CONFIRMATION -->
+    <article class="pillar c-green">
+      <div class="head">
+        <div class="idx">01</div>
+        <div>
+          <h2>Confirmation Signal</h2>
+          <span class="label">Confirmation Analysis · the filter</span>
+        </div>
+      </div>
+      <div class="body">
+        <p>The headline proprietary tactic. A trendline break or level break is <strong>not</strong> a signal by itself —
+        it's a candidate. The Confirmation Signal requires the next candle to <strong>close beyond the extreme of the
+        initial break candle</strong> before the break is tradeable. Designed to filter false breaks, fakeouts and bear traps.</p>
+
+        <div class="row"><div class="k">Rule (down)</div><div class="v">Daily <strong>close below the low</strong> of the initial breakdown candle confirms the break.</div></div>
+        <div class="row"><div class="k">Rule (up)</div><div class="v">Daily <strong>close above the high</strong> of the initial breakout candle confirms the break.</div></div>
+        <div class="row"><div class="k">Worked ex.</div><div class="v">QQQ channel break (Nov '25): the break alone is "one thing" — confirmation was a daily close below <code>606</code>, the low of the breakdown candle, to open the path toward the correction target.</div></div>
+        <div class="row"><div class="k">Trades</div><div class="v"><em>Acceptance</em>, not the break. Pairs with "no retest = no trade," break-and-back retest, and a negation/engulfing candle closing back inside range.</div></div>
+        <div class="row"><div class="k">Trade-off</div><div class="v">Lagging by design — you surrender the exact turn in exchange for higher hit-rate. Siblings in the PPT course: <em>Three Tail Theory</em>, <em>River Theory</em> (detail paywalled).</div></div>
+
+        <div class="hook">
+          <span class="hl">↳ Hooks into your stack</span>
+          This is the discretionary twin of your <strong>gate-based confirmation logic (Track D)</strong>. A tactical oscillator
+          firing counter-trend (Keltner, PowerX) is the "break"; it isn't actionable until the regime gates confirm — exactly
+          the "all three gates closed" constraint. Soloway formalises the same instinct as a single close-beyond-the-candle test.
+        </div>
+      </div>
+    </article>
+
+    <!-- 2 CYCLE -->
+    <article class="pillar c-violet">
+      <div class="head">
+        <div class="idx">02</div>
+        <div>
+          <h2>Cycle Analysis</h2>
+          <span class="label">Cyclical Analysis · the regime read</span>
+        </div>
+      </div>
+      <div class="body">
+        <p>The asymmetry thesis: <strong>major tops are processes, major bottoms are events.</strong> Tops grind and roll
+        over as "buy-the-dip" conditioning gets exhausted in stages; the true V-bottom capitulation happens at the lows,
+        <em>after</em> the dip-buy has failed repeatedly — not at the highs.</p>
+
+        <div class="row"><div class="k">Channel read</div><div class="v">Rejection from the top of a well-defined multi-year parallel channel = trend exhaustion. (S&amp;P weekly channel anchored off the 2021 peak; its lower rail had marked five prior bottoms.)</div></div>
+        <div class="row"><div class="k">Extension</div><div class="v">Historic over-extension (e.g. SMH) flags drawdown risk before price confirms it.</div></div>
+        <div class="row"><div class="k">Sentiment</div><div class="v">Extreme negative sentiment = bullish tell; euphoric "you can't lose" = his cue to step back.</div></div>
+        <div class="row"><div class="k">Targets</div><div class="v">Former major highs become future support — the first logical magnet for a corrective move.</div></div>
+        <div class="row"><div class="k">Analog</div><div class="v">2008: down → bounce → lower → bounce → terminal capitulation months after the top. The panic isn't at the high.</div></div>
+
+        <div class="hook">
+          <span class="hl">↳ Hooks into your stack</span>
+          A discretionary cross-check on your <strong>Hybrid Rotation Engine</strong> phase reads and the <strong>DCAS P6/P7 desync</strong>.
+          Soloway's "capitulation lives at the lows" maps cleanly onto late-distribution → early-accumulation: a P6/P7 label sitting on top
+          of a deep price decline is the exact "top as process" picture, and supports favouring the better-calibrated classifier.
+        </div>
+      </div>
+    </article>
+
+    <!-- 3 TIME -->
+    <article class="pillar c-amber">
+      <div class="head">
+        <div class="idx">03</div>
+        <div>
+          <h2>Time Layer</h2>
+          <span class="label">Time Chart · pairing price with a window</span>
+        </div>
+      </div>
+      <div class="body">
+        <p><strong>Note:</strong> unlike the Confirmation Signal, this isn't a single named proprietary tool — it's the
+        timing discipline woven through the method. The signature habit is issuing <strong>price targets bound to explicit
+        time windows</strong>, and structuring trade horizons so a thesis has room to play out.</p>
+
+        <div class="row"><div class="k">Price + time</div><div class="v">Targets come with a clock: "10% S&amp;P / 15% Nasdaq over the next 1–2 months"; gold "$5,000 by the first month or two of 2026."</div></div>
+        <div class="row"><div class="k">Horizon</div><div class="v">Mid-term book runs <code>3–12 months</code>; the options service deliberately uses <code>~6-month</code> expiries so theta doesn't kill a correct-but-early thesis.</div></div>
+        <div class="row"><div class="k">Multi-TF</div><div class="v">Levels must be obvious on the daily / 4H without squinting; drop a timeframe to time the entry once the higher TF level is in play.</div></div>
+        <div class="row"><div class="k">Patience</div><div class="v">Monitor time-in-trade / time-to-profit; cut slow movers; pause any setup that fails three times in a row.</div></div>
+
+        <div class="hook">
+          <span class="hl">↳ Hooks into your stack</span>
+          This is your <strong>M2 lag-window logic in discretionary form</strong> — a constructive read can hold even while the
+          tape is bearish because the thesis carries a time horizon, not just a level. His ~6-month expiry preference is the direct
+          argument for the <strong>IBIT LEAPS</strong> side of your proxy fork: leverage with enough runway for the BTC regime call to resolve.
+        </div>
+      </div>
+    </article>
+
+    <!-- 4 VWAP -->
+    <article class="pillar c-blue">
+      <div class="head">
+        <div class="idx">04</div>
+        <div>
+          <h2>VWAP / Anchored VWAP</h2>
+          <span class="label">VWAP Method · the institutional value line</span>
+        </div>
+      </div>
+      <div class="body">
+        <p>At Verified Investing the dedicated VWAP course is run by <strong>"Doctor B"</strong> in collaboration with Soloway
+        ("Mastering VWAP"). The swing-relevant core is <strong>Anchored VWAP (AVWAP)</strong> — VWAP recalculated from a
+        chosen meaningful origin rather than the daily session open, read as the <em>cumulative cost basis of everyone
+        positioned since that event</em>.</p>
+
+        <div class="row"><div class="k">Anchor at</div><div class="v">Pivotal swing highs/lows, breakout candles, or macro catalysts (CPI, FOMC, earnings). Anchor choice <em>is</em> the analysis — a random anchor gives a random line.</div></div>
+        <div class="row"><div class="k">Control</div><div class="v">Price above AVWAP = buyers in control; below = sellers. <strong>Slope matters</strong> — up / down / flat tells you trend strength.</div></div>
+        <div class="row"><div class="k">SD bands</div><div class="v">1st band = mean-reversion zone; 2nd–3rd = over-extension / "exhaustion zone," prone to a violent snap-back.</div></div>
+        <div class="row"><div class="k">The Pinch</div><div class="v">When a trendline and an AVWAP converge, a breakout/rejection is imminent — a high-probability decision point.</div></div>
+        <div class="row"><div class="k">Confluence</div><div class="v">Stack multiple anchors (trend origin + swing high + event); where they cluster, the level firms up.</div></div>
+
+        <div class="hook">
+          <span class="hl">↳ Hooks into your stack</span>
+          The accumulation-native tool here. Anchor an AVWAP to the <strong>BTC cycle low / halving</strong> to read the institutional
+          cost basis line — a direct, objective input to your <strong>MSTR-shares vs IBIT-LEAPS</strong> proxy decision and to dollar-cost
+          timing. AVWAP touch + a confirming candle (Pillar 01) is the cleanest entry trigger your DCAS engine could borrow.
+        </div>
+      </div>
+    </article>
+
+  </div>
+
+  <!-- CROSS REFERENCE -->
+  <section class="matrix">
+    <h2>// crosswalk → your tracks</h2>
+    <table>
+      <tr>
+        <td>Confirmation Signal<span class="t">Pillar 01 · green</span></td>
+        <td>Track D gate logic — close-beyond-the-break-candle as the discretionary analogue of regime-gate confirmation; nothing actionable until the break is <em>accepted</em>.</td>
+      </tr>
+      <tr>
+        <td>Cycle Analysis<span class="t">Pillar 02 · violet</span></td>
+        <td>Hybrid Rotation Engine / DCAS phase cross-check — "tops are process, bottoms are event" as a sanity test on a P6/P7 label sitting over a price decline.</td>
+      </tr>
+      <tr>
+        <td>Time Layer<span class="t">Pillar 03 · amber</span></td>
+        <td>M2 lag-window thinking — price targets bound to time; ~6-month expiry preference underwrites the IBIT-LEAPS proxy rationale.</td>
+      </tr>
+      <tr>
+        <td>Anchored VWAP<span class="t">Pillar 04 · blue</span></td>
+        <td>BTC accumulation — AVWAP from cycle low/halving = institutional cost basis; objective input to the MSTR-vs-LEAPS fork and DCA timing.</td>
+      </tr>
+    </table>
+  </section>
+
+  <!-- CAVEATS -->
+  <section class="caveat">
+    <h2>Read critically</h2>
+    <ul>
+      <li><strong>Self-reported track record.</strong> The headline win rates (80%+ swing, 94% day) are publisher-stated and not independently audited; treat as marketing, not verified edge.</li>
+      <li><strong>Proprietary detail is paywalled.</strong> Three Tail Theory, River Theory and the full PPT mechanics sit behind course access — the public footprint is partial by design.</li>
+      <li><strong>Discretionary, not systematic.</strong> This is a chart-reading framework, not a rules engine. It won't backtest cleanly the way your Pine Script indicators do; the value is as a confirmation lens layered over your gates.</li>
+      <li><strong>Forecast scoreboard is mixed.</strong> The price-and-date calls (esp. the multi-year sub-$20k BTC thesis) have been wrong as often as right — the process is more reusable than the predictions.</li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    SOLOWAY METHOD · reference entry · sources: verifiedinvesting.com · <a href="https://garytd.github.io/Trading/">garytd.github.io/Trading</a>
+  </footer>
+
+</div>
+</body>
+</html>

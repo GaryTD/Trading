@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Track D · Super6 / PowerX Playbook v2</title>
+<style>
+  :root{
+    --bg:#0a0e14; --panel:#111722; --panel2:#0d131d;
+    --edge:#1d2735; --ink:#e6edf5; --muted:#8a99ad; --faint:#5c6b80;
+    --blue:#4ea3ff; --red:#ff5a52; --amber:#ffb43d; --green:#36d399; --violet:#b07cff;
+    --grid:rgba(255,255,255,.04);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);
+    font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;line-height:1.5;}
+  .mono{font-family:"JetBrains Mono","SF Mono",ui-monospace,Menlo,Consolas,monospace;}
+  .wrap{max-width:1180px;margin:0 auto;padding:28px 22px 60px;}
+
+  header{border:1px solid var(--edge);border-radius:14px;
+    background:
+      radial-gradient(120% 140% at 0% 0%, rgba(78,163,255,.10), transparent 55%),
+      radial-gradient(120% 140% at 100% 0%, rgba(176,124,255,.08), transparent 55%),
+      var(--panel);
+    padding:20px 22px;margin-bottom:18px;position:relative;overflow:hidden;}
+  .eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--violet);font-weight:600;margin:0 0 8px;}
+  h1{font-size:25px;line-height:1.15;margin:0;font-weight:700;letter-spacing:-.01em;}
+  h1 .sub{color:var(--blue);}
+  h1 .ver{font-size:13px;color:var(--green);border:1px solid rgba(54,211,153,.35);border-radius:6px;padding:2px 8px;margin-left:8px;vertical-align:middle;letter-spacing:.06em;}
+  .deck{color:var(--muted);font-size:13.5px;margin:9px 0 0;max-width:80ch;}
+  .ticktag{position:absolute;top:18px;right:20px;font-size:11px;color:var(--faint);border:1px solid var(--edge);border-radius:6px;padding:4px 9px;letter-spacing:.06em;}
+
+  .tape{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--edge);border:1px solid var(--edge);border-radius:12px;overflow:hidden;margin-bottom:18px;}
+  .cell{background:var(--panel2);padding:12px 14px;}
+  .cell .k{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);}
+  .cell .v{font-size:14px;font-weight:600;margin-top:4px;}
+  .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+  .v-red{color:var(--red)} .v-green{color:var(--green)} .v-amber{color:var(--amber)} .v-blue{color:var(--blue)} .v-violet{color:var(--violet)} .v-muted{color:var(--muted)}
+
+  .ref{border:1px solid var(--edge);border-radius:14px;background:var(--panel);margin-bottom:18px;overflow:hidden}
+  .ref-h{padding:12px 18px;border-bottom:1px solid var(--edge);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);font-weight:700;display:flex;align-items:center;gap:10px;}
+  .ref-h .pill{margin-left:auto;font-size:10px;letter-spacing:.1em;color:var(--green);border:1px solid rgba(54,211,153,.3);border-radius:5px;padding:2px 7px;}
+
+  /* risk layer */
+  .risk-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--edge)}
+  .rk{background:var(--panel2);padding:14px 16px;}
+  .rk .nm{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--violet);font-weight:700;}
+  .rk .big{font-size:20px;font-weight:700;margin:6px 0 2px;}
+  .rk .big small{font-size:12px;color:var(--muted);font-weight:500;}
+  .rk .note{font-size:11.5px;color:var(--muted);line-height:1.45;margin-top:6px;}
+  .rk .note b{color:var(--ink)}
+  .editable{color:var(--amber);}
+
+  /* asset selector */
+  .assetbar{display:flex;align-items:center;gap:14px;padding:14px 18px;flex-wrap:wrap;}
+  .assetbar .lab{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);}
+  .assetbar .hint{font-size:12px;color:var(--muted);}
+  .seg{display:inline-flex;border:1px solid var(--edge);border-radius:9px;overflow:hidden;}
+  .seg button{background:transparent;color:var(--muted);border:none;padding:8px 20px;font:inherit;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.05em;transition:background .15s,color .15s;}
+  .seg button:not(:last-child){border-right:1px solid var(--edge);}
+  .seg button.on-btc{background:rgba(255,180,61,.16);color:var(--amber);}
+  .seg button.on-eq{background:rgba(78,163,255,.16);color:var(--blue);}
+  .subrow{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--edge);border-top:1px solid var(--edge);}
+  @media(max-width:760px){.subrow{grid-template-columns:1fr}}
+  .sc{background:var(--panel2);padding:13px 16px;}
+  .sc .nm{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--violet);font-weight:700;}
+  .sc .val{font-size:12.5px;color:var(--ink);margin-top:6px;line-height:1.45;}
+
+  /* stop progression ladder */
+  .stopflow{padding:16px 18px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;align-items:stretch;}
+  @media(max-width:760px){.stopflow{grid-template-columns:1fr;gap:1px;background:var(--edge)}}
+  .sf{position:relative;padding:0 16px;}
+  .sf:not(:last-child)::after{content:"→";position:absolute;right:-7px;top:18px;color:var(--faint);font-size:16px;}
+  @media(max-width:760px){.sf{background:var(--panel2);padding:13px 16px}.sf::after{display:none!important}}
+  .sf .lab{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);}
+  .sf .act{font-size:13px;font-weight:600;margin-top:5px;color:var(--ink);}
+  .sf .stop{font-size:11.5px;margin-top:6px;color:var(--green);}
+  .sf .stop b{color:var(--ink)}
+
+  .secrow{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px;}
+  @media(max-width:860px){.secrow{grid-template-columns:1fr}}
+  .card{border:1px solid var(--edge);border-radius:14px;background:var(--panel);overflow:hidden;}
+  .card-h{padding:14px 18px;border-bottom:1px solid var(--edge);display:flex;align-items:center;gap:10px;}
+  .card-h .tag{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;}
+  .card-h .badge{margin-left:auto;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;border-radius:5px;padding:3px 8px;border:1px solid var(--edge);color:var(--muted);}
+  .long .tag{color:var(--green)} .short .tag{color:var(--red)}
+  .long .card-h{background:linear-gradient(90deg,rgba(54,211,153,.10),transparent)}
+  .short .card-h{background:linear-gradient(90deg,rgba(255,90,82,.10),transparent)}
+  .card-b{padding:6px 18px 16px;}
+
+  .phase{font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);margin:16px 0 8px;padding-bottom:5px;border-bottom:1px dashed var(--edge);}
+  .step{display:grid;grid-template-columns:54px 1fr;gap:12px;padding:9px 0;border-bottom:1px solid var(--grid);}
+  .step:last-child{border-bottom:none}
+  .chip{font-size:11px;font-weight:700;text-align:center;border-radius:7px;padding:5px 0;height:fit-content;line-height:1.2;}
+  .chip small{display:block;font-size:8.5px;font-weight:600;letter-spacing:.1em;opacity:.7;text-transform:uppercase;}
+  .chip.add{background:rgba(54,211,153,.12);color:var(--green);border:1px solid rgba(54,211,153,.3)}
+  .chip.add-r{background:rgba(255,90,82,.12);color:var(--red);border:1px solid rgba(255,90,82,.3)}
+  .chip.trim{background:rgba(255,180,61,.12);color:var(--amber);border:1px solid rgba(255,180,61,.3)}
+  .chip.exit{background:rgba(176,124,255,.12);color:var(--violet);border:1px solid rgba(176,124,255,.3)}
+  .chip.gate{background:rgba(78,163,255,.12);color:var(--blue);border:1px solid rgba(78,163,255,.3)}
+  .step .txt{font-size:13px;color:var(--ink)}
+  .step .txt b{color:#fff;font-weight:600}
+  .hl-green{color:var(--green);font-weight:600} .hl-red{color:var(--red);font-weight:600}
+  .hl-amber{color:var(--amber);font-weight:600} .hl-blue{color:var(--blue);font-weight:600} .hl-violet{color:var(--violet);font-weight:600}
+
+  .ind{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:1px;background:var(--edge)}
+  .ic{background:var(--panel2);padding:12px 14px;}
+  .ic .nm{font-weight:700;font-size:12.5px;}
+  .ic .role{font-size:11px;color:var(--muted);margin-top:5px;line-height:1.4;}
+
+  footer{margin-top:18px;border:1px solid var(--edge);border-radius:14px;background:var(--panel2);padding:16px 20px;}
+  footer .ttl{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);font-weight:700;margin-bottom:10px;}
+  footer ol{margin:0;padding-left:20px;color:var(--muted);font-size:12.5px;}
+  footer li{margin:6px 0;} footer b{color:var(--ink)}
+  .disc{margin-top:14px;font-size:11px;color:var(--faint);border-top:1px solid var(--edge);padding-top:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <p class="eyebrow">Track D · Regime &amp; Execution</p>
+    <h1>Super6 / PowerX <span class="sub">Trade Playbook</span><span class="ver">v2.2 · risk layer</span></h1>
+    <p class="deck">Scale-in / scale-out ladder for the <b>Super 6x [Loxx]</b> confluence engine on BTCUSD daily (OHLC). v2 adds the missing risk primitives: base size, initial stop, and a hard breakeven-before-add rule that caps aggregate open risk at 1R.</p>
+    <span class="ticktag mono">BTCUSD · COINBASE · 1D OHLC</span>
+  </header>
+
+  <!-- TAPE STATE -->
+  <div class="tape">
+    <div class="cell"><div class="k">Bar State</div><div class="v v-red"><span class="dot" style="background:var(--red)"></span>Red · down</div></div>
+    <div class="cell"><div class="k">Keltner</div><div class="v v-blue">Below lower band · ↓ slope</div></div>
+    <div class="cell"><div class="k">MQ Momentum</div><div class="v v-red">−31 · red hist · no recross</div></div>
+    <div class="cell"><div class="k">Winwave</div><div class="v v-red">−3.99 · below 0</div></div>
+    <div class="cell"><div class="k">Cycle Heat</div><div class="v v-green">Accumulation · 20.5</div></div>
+    <div class="cell"><div class="k">VIX / Zone</div><div class="v v-amber">18.4 · Complacency</div></div>
+    <div class="cell"><div class="k">Active Framework</div><div class="v v-red">SHORT · rung 3 intact</div></div>
+    <div class="cell"><div class="k">Long Gate</div><div class="v v-muted">Closed · MQ curl only</div></div>
+  </div>
+
+  <!-- RISK LAYER (the v2 upgrade) -->
+  <div class="ref">
+    <div class="ref-h">Risk Layer · base size · stop · 1R cap <span class="pill">new in v2</span></div>
+    <div class="risk-grid">
+      <div class="rk">
+        <div class="nm">Base Risk / R</div>
+        <div class="big editable">0.75%<small> / full position</small></div>
+        <div class="note"><b>Your dial.</b> R = max account loss on a fully-built (3/3) position. Set it once; everything below sizes off it. Conservative 0.5%, standard 0.75–1%.</div>
+      </div>
+      <div class="rk">
+        <div class="nm">Tranche Size</div>
+        <div class="big">⅓ · ⅓ · ⅓</div>
+        <div class="note">Each rung is one third of the <b>full</b> intended position. Tranche-1 size = (its share of R) ÷ initial-stop distance. Never front-load; the ladder earns the next third.</div>
+      </div>
+      <div class="rk">
+        <div class="nm">Initial Stop · T1</div>
+        <div class="big v-red">Structure first</div>
+        <div class="note"><b>Long:</b> below the <span class="hl-green">green-star signal-bar low</span> / lower band, whichever is cleaner. <b>Short:</b> mirror above. ATR is a <b>filter, not the placement</b>: if structure is &lt;<span class="editable">1×ATR(14)</span> away → entry's inside the noise, skip/wait. Fallback only when structure is ambiguous: <span class="editable">~2×ATR(14)</span>.</div>
+      </div>
+      <div class="rk">
+        <div class="nm">Aggregate Open Risk</div>
+        <div class="big v-green">≤ 1R</div>
+        <div class="note"><b>Hard ceiling.</b> Total live risk across all tranches never exceeds 1R. Adds are <i>funded</i> by moving the prior tranche to breakeven — not by adding new risk.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSET CLASS · ATR STOP PROFILE -->
+  <div class="ref" id="assetmod">
+    <div class="ref-h">Asset Class · ATR Stop Profile <span class="pill" id="asset-pill">BTC</span></div>
+    <div class="assetbar">
+      <span class="lab">Select</span>
+      <div class="seg">
+        <button id="b-btc" class="on-btc" onclick="setAsset('btc')">BTC</button>
+        <button id="b-eq" onclick="setAsset('eq')">Equities</button>
+      </div>
+      <span class="hint">Same rule both sides — ATR self-normalizes to each instrument's own volatility.</span>
+    </div>
+    <div class="risk-grid" style="border-top:1px solid var(--edge)">
+      <div class="rk"><div class="nm">Instrument Vol</div><div class="big" id="atr-vol" style="font-size:15px"></div><div class="note">Daily ATR(14) as % of price — the unit every stop below is measured in.</div></div>
+      <div class="rk"><div class="nm">1× ATR · min-distance filter</div><div class="big" id="atr-filter" style="font-size:15px;color:var(--amber)"></div><div class="note">If the structural stop sits closer than this, the entry's inside the noise — skip or wait.</div></div>
+      <div class="rk"><div class="nm">2× ATR · fallback stop</div><div class="big" id="atr-fallback" style="font-size:15px;color:var(--red)"></div><div class="note">Used only when structure is ambiguous. Structure-first wins whenever it's clean.</div></div>
+      <div class="rk"><div class="nm">Sizing per 1R</div><div class="big" id="atr-sizing" style="font-size:13px"></div><div class="note">Size = (share of R) ÷ stop distance. Wider stop → smaller size, identical risk.</div></div>
+    </div>
+    <div class="subrow">
+      <div class="sc"><div class="nm">What ATR can't see · gaps</div><div class="val" id="atr-gap"></div></div>
+      <div class="sc"><div class="nm">Session / close</div><div class="val" id="atr-session"></div></div>
+      <div class="sc"><div class="nm">Regime gate inputs</div><div class="val" id="atr-regime"></div></div>
+    </div>
+  </div>
+
+  <!-- STOP PROGRESSION -->
+  <div class="ref">
+    <div class="ref-h">Breakeven-Before-Add · stop progression</div>
+    <div class="stopflow">
+      <div class="sf">
+        <div class="lab">Tranche 1 on</div>
+        <div class="act">Enter ⅓</div>
+        <div class="stop">Stop: <b>below structure</b> (signal-bar low / lower band)</div>
+      </div>
+      <div class="sf">
+        <div class="lab">Before Tranche 2</div>
+        <div class="act">T1 → breakeven</div>
+        <div class="stop">No add until <b>T1 stop = entry</b>. Then add ⅓.</div>
+      </div>
+      <div class="sf">
+        <div class="lab">Before Tranche 3</div>
+        <div class="act">T2 → breakeven</div>
+        <div class="stop">Trail combined stop under last <b>higher-low</b> / orange mid. Add final ⅓.</div>
+      </div>
+      <div class="sf">
+        <div class="lab">Full position</div>
+        <div class="act">Trail whole</div>
+        <div class="stop">Whole position trails under <b>orange mid (20)</b> — your last-third exit becomes the trail.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LONG + SHORT LADDERS -->
+  <div class="secrow">
+
+    <div class="card long">
+      <div class="card-h"><span class="tag">▲ Long Playbook</span><span class="badge">★ Green star · ↑ Keltner</span></div>
+      <div class="card-b">
+
+        <div class="phase">Regime gate (check first)</div>
+        <div class="step"><div class="chip gate">PASS</div><div class="txt">Take long rungs only when the cycle/sentiment layer <b>agrees</b>: Cycle Heat in <span class="hl-green">Accumulation / Re-accum / Markup</span> (not Distribution top). Gate disagrees → manage existing only, no new adds.</div></div>
+
+        <div class="phase">Scale-in ladder</div>
+        <div class="step"><div class="chip add">⅓<small>entry</small></div><div class="txt">Keltner sloping <span class="hl-green">up</span> + <b>volume rising</b>. <span class="hl-green">MQ green hist forms</span> &amp; blue crosses up over grey (rising&nbsp;&gt;&nbsp;−24). <b>Green star</b> marks it. → set initial stop.</div></div>
+        <div class="step"><div class="chip add">+⅓<small>add · T1 at BE</small></div><div class="txt">Bars reclaim the <span class="hl-blue">lower Keltner band</span>, MQ rising through 0, <span class="hl-green">Winwave green above zero</span>. <b>Only after T1 stop is at breakeven.</b></div></div>
+        <div class="step"><div class="chip add">+⅓<small>add · T2 at BE</small></div><div class="txt">Bars turn <span class="hl-green">green</span> (full confluence). <b>Only after T2 stop is at breakeven.</b></div></div>
+
+        <div class="phase">Manage / scale-out</div>
+        <div class="step"><div class="chip trim">−⅓<small>profit</small></div><div class="txt">Green bar touches/closes inside the <span class="hl-green">upper band</span>, <i>or</i> MQ blue crosses down + red hist, <i>or</i> bar-colour change.</div></div>
+        <div class="step"><div class="chip exit">⅓<small>total · disc.</small></div><div class="txt"><b>Discretionary total exit.</b> Close <b>below <span class="hl-amber">orange mid (20)</span></b> / <span class="hl-red">red star</span> at highs = the <i>cue</i> — final third closed at your discretion.</div></div>
+
+        <div class="phase">Re-entry</div>
+        <div class="step"><div class="chip add">+⅓<small>re-add</small></div><div class="txt">Orange/green bar back above orange midpoint, MQ blue&nbsp;&gt;&nbsp;grey + green hist, Winwave solid green. Add again above <span class="hl-green">upper band</span>. New stop set each time; 1R cap still binds.</div></div>
+
+      </div>
+    </div>
+
+    <div class="card short">
+      <div class="card-h"><span class="tag">▼ Short Playbook</span><span class="badge">★ Red star · ↓ Keltner</span></div>
+      <div class="card-b">
+
+        <div class="phase">Regime gate (check first)</div>
+        <div class="step"><div class="chip gate">PASS</div><div class="txt">Take short rungs only when the cycle/sentiment layer <b>agrees</b>: Cycle Heat in <span class="hl-red">Distribution / Euphoria / Markdown</span>, not a fresh Accumulation print. <span class="hl-amber">Current tape: cycle reads Accumulation</span> → short is counter-cycle, manage-only.</div></div>
+
+        <div class="phase">Scale-in ladder</div>
+        <div class="step"><div class="chip add-r">⅓<small>entry</small></div><div class="txt">Bar flips <span class="hl-amber">orange</span>→<span class="hl-red">red</span> after price penetrates the <span class="hl-green">top of the channel</span>. <span class="hl-red">MQ blue under grey + red hist</span>; Winwave to zero/red. → set initial stop above structure.</div></div>
+        <div class="step"><div class="chip add-r">+⅓<small>add · T1 at BE</small></div><div class="txt">Bar <b>closes under <span class="hl-amber">orange mid (20)</span></b>. Only after T1 stop is at breakeven.</div></div>
+        <div class="step"><div class="chip add-r">+⅓<small>add · T2 at BE</small></div><div class="txt">Bars break the <span class="hl-blue">lower band</span>. Only after T2 stop is at breakeven.</div></div>
+
+        <div class="phase">Manage / scale-out</div>
+        <div class="step"><div class="chip trim">−⅓<small>profit</small></div><div class="txt">Bar changes colour and closes <b>back inside, crossing the <span class="hl-amber">orange median</span></b>.</div></div>
+        <div class="step"><div class="chip add-r">+⅓<small>re-add</small></div><div class="txt">Price keeps breaking the <span class="hl-blue">lower band</span> → add back (1R cap binds).</div></div>
+        <div class="step"><div class="chip exit">−⅓<small>exit</small></div><div class="txt">On bar-colour change, or a lower-band break that closes back inside.</div></div>
+        <div class="step"><div class="chip exit">⅓<small>total · disc.</small></div><div class="txt"><b>Discretionary total exit.</b> Bar turns <span class="hl-violet">black</span> or MQ blue recrosses grey + green hist = the <i>cue</i> — final third closed at your discretion, not a forced trigger.</div></div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SUPER 6X COMPONENTS -->
+  <div class="ref">
+    <div class="ref-h">Super 6x [Loxx] — confluence inputs <span class="pill" style="color:var(--amber);border-color:rgba(255,180,61,.3)">correlation caveat</span></div>
+    <div class="ind">
+      <div class="ic"><div class="nm">RSI</div><div class="role">Momentum oscillator</div></div>
+      <div class="ic"><div class="nm">MACD</div><div class="role">Trend-momentum</div></div>
+      <div class="ic"><div class="nm">Stochastic</div><div class="role">Momentum oscillator</div></div>
+      <div class="ic"><div class="nm">Loxxer</div><div class="role">Adaptive band/momentum</div></div>
+      <div class="ic"><div class="nm">CCI</div><div class="role">Momentum / deviation</div></div>
+      <div class="ic"><div class="nm">Velocity</div><div class="role">Rate-of-change</div></div>
+    </div>
+    <div style="padding:12px 18px;font-size:12px;color:var(--muted);border-top:1px solid var(--edge);">
+      All six are <b style="color:var(--ink)">price-derived momentum family</b> — they co-move. Six green ≠ six independent confirmations; it's one momentum read sampled six ways, which manufactures confidence and stacks lag. Your only orthogonal layers are <span class="hl-green">Cycle Heat</span> (cycle) and <span class="hl-blue">VIX/Zone</span> (sentiment) — which is exactly why the regime gate above sits <i>outside</i> the six.
+    </div>
+  </div>
+
+  <footer>
+    <div class="ttl">v2 changelog &amp; open flags</div>
+    <ol>
+      <li><b>Green star</b> now marks long entry (was pink). Red star = short/exit at highs.</li>
+      <li><b>Risk layer added:</b> base R, ⅓ tranche sizing off stop distance, structural initial stop with ATR alt, and the <b>≤1R aggregate cap</b>.</li>
+      <li><b>Breakeven-before-add</b> enforced: no tranche 2 until T1 is at BE, no tranche 3 until T2 is at BE. This is what stops the pyramid from leaving you largest at the worst average on a reversal.</li>
+      <li><b>Regime gate</b> promoted from context to a first-check on both sides. On the current tape it <i>blocks new shorts</i> (cycle reads Accumulation) — counter-cycle adds are manage-only.</li>
+      <li><b>Still your call:</b> the <span class="editable">0.75% R</span> and ATR multiples (<span class="editable">1× filter</span> / <span class="editable">2× fallback</span>) are placeholders — set to your own tolerance.</li>
+      <li><b>v2.1 fixes:</b> short scale-out is now thirds (first trim −⅓, not −½); final third on both sides is a <b>discretionary total exit</b> — black bar / MQ recross (short) and orange-mid / red star (long) are the <i>cues</i>, you pull the trigger. ATR demoted from placement to filter (1× min-distance) + fallback (2×).</li>
+      <li><b>v2.2:</b> BTC ⇄ Equities selector on the ATR Stop Profile. The rule is identical — ATR self-normalizes — so the selector only swaps the <i>magnitudes</i> (1× filter / 2× fallback in %), the gap/session caveats ATR can't see, and which regime inputs apply.</li>
+    </ol>
+    <div class="disc">Track D reference — indicator mechanics and risk structure only; sizing and deployment remain discretionary. Daily OHLC: treat band touches / colour flips as confirmed on the <b>daily close</b>, not intrabar, to avoid acting on signals that unwind by the bell.</div>
+  </footer>
+
+</div>
+<script>
+  const ASSET = {
+    btc: {
+      pill:"BTC", tick:"BTCUSD · COINBASE · 1D OHLC",
+      vol:"≈ 4–6% of price  ($2.5k–3.5k near $60k)",
+      filter:"skip if structure &lt; ~4–6% away",
+      fallback:"≈ 8–12% stop",
+      sizing:"Wide stop → small $ position per 1R",
+      gap:"24/7 — no session gaps. Daily-close stop fills reliably; watch low-liquidity weekend wicks, not earnings.",
+      session:"Continuous. Daily close 00:00 UTC. No overnight gap risk to size around.",
+      regime:"Cycle Heat (halving cycle) + VIX as cross-asset proxy + M2 liquidity overlay."
+    },
+    eq: {
+      pill:"EQUITIES", tick:"EQUITY · DAILY OHLC",
+      vol:"≈ 1.5–2.5% large-cap (3–5% high-beta / small-cap)",
+      filter:"skip if structure &lt; ~1.5–2.5% away",
+      fallback:"≈ 3–5% stop",
+      sizing:"Tighter stop → larger share count per 1R",
+      gap:"Overnight & earnings gaps can jump the stop — fill is NOT guaranteed. Size for gap risk; avoid holding through earnings.",
+      session:"RTH. Daily close 4:00pm ET. Overnight + weekend gap risk is real — the stop is a target, not a guarantee.",
+      regime:"Equity VIX (direct read) + market breadth (A/D, %&gt;200dma) + index / sector trend. (Cycle Heat is BTC-specific.)"
+    }
+  };
+  function setAsset(a){
+    const d = ASSET[a];
+    document.getElementById('atr-vol').innerHTML = d.vol;
+    document.getElementById('atr-filter').innerHTML = d.filter;
+    document.getElementById('atr-fallback').innerHTML = d.fallback;
+    document.getElementById('atr-sizing').innerHTML = d.sizing;
+    document.getElementById('atr-gap').innerHTML = d.gap;
+    document.getElementById('atr-session').innerHTML = d.session;
+    document.getElementById('atr-regime').innerHTML = d.regime;
+    document.getElementById('asset-pill').textContent = d.pill;
+    document.querySelector('.ticktag').textContent = d.tick;
+    const btc = document.getElementById('b-btc'), eq = document.getElementById('b-eq');
+    btc.className = a==='btc' ? 'on-btc' : '';
+    eq.className  = a==='eq'  ? 'on-eq'  : '';
+  }
+  setAsset('btc');
+</script>
+</body>
+</html>
