@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Matrix Spread Planner · Reference · Operator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070b12; --panel:#0d141f; --panel-2:#111b29; --edge:#1d2a3c;
+    --ink:#e8eef6; --ink-dim:#8a9bb2; --ink-faint:#566479;
+    --blue:#3aa0ff; --red:#ff4d5e; --amber:#ffb02e; --green:#3ad29f; --violet:#9b7bff;
+    --mono:'IBM Plex Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);
+    line-height:1.45;padding:28px 20px 80px;
+    background-image:radial-gradient(circle at 18% -10%,rgba(58,160,255,.08),transparent 45%),
+                     radial-gradient(circle at 90% 0%,rgba(155,123,255,.06),transparent 40%);}
+  .wrap{max-width:1080px;margin:0 auto}
+  header{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;
+    border-bottom:1px solid var(--edge);padding-bottom:16px;margin-bottom:22px}
+  .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--violet);font-weight:500}
+  h1{font-size:25px;font-weight:700;letter-spacing:-.01em}
+  h1 .sp{color:var(--ink-faint);font-weight:400}
+  .tag{margin-left:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--ink-faint);border:1px solid var(--edge);
+    padding:5px 9px;border-radius:4px}
+  .grid{display:grid;grid-template-columns:340px 1fr;gap:18px;align-items:start}
+  @media(max-width:860px){.grid{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:18px}
+  .panel h2{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--ink-dim);font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+  .panel h2::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--blue)}
+  /* form */
+  .field{margin-bottom:13px}
+  .field label{display:block;font-size:11.5px;color:var(--ink-dim);margin-bottom:5px;
+    letter-spacing:.02em;text-transform:uppercase;font-weight:500;font-family:var(--mono)}
+  .field input[type=number]{width:100%;background:var(--bg);border:1px solid var(--edge);
+    color:var(--ink);font-family:var(--mono);font-size:15px;padding:9px 11px;border-radius:6px}
+  .field input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 2px rgba(58,160,255,.18)}
+  .row{display:flex;gap:11px}.row .field{flex:1}
+  .seg{display:flex;border:1px solid var(--edge);border-radius:6px;overflow:hidden}
+  .seg button{flex:1;background:var(--bg);color:var(--ink-dim);border:none;
+    font-family:var(--mono);font-size:12px;padding:9px 4px;cursor:pointer;transition:.12s;letter-spacing:.04em}
+  .seg button.on{background:var(--panel-2);color:var(--ink)}
+  .seg.side button.on{color:var(--green)} .seg.side button.on.call{color:var(--red)}
+  .seg button:not(:last-child){border-right:1px solid var(--edge)}
+  .veto{display:flex;align-items:center;gap:9px;margin-top:4px;cursor:pointer;user-select:none}
+  .veto .box{width:17px;height:17px;border:1px solid var(--edge);border-radius:4px;
+    display:grid;place-items:center;font-size:11px;color:var(--violet);background:var(--bg)}
+  .veto.on .box{border-color:var(--violet);background:rgba(155,123,255,.14)}
+  .veto span{font-size:12.5px;color:var(--ink-dim)}
+  /* output */
+  .reco{display:flex;align-items:center;gap:16px;padding:15px 16px;border-radius:9px;
+    background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--edge);margin-bottom:16px}
+  .reco .delta{font-family:var(--mono);font-size:40px;font-weight:600;line-height:1;letter-spacing:-.02em}
+  .reco .meta{flex:1}
+  .reco .meta .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-faint)}
+  .reco .meta .why{font-size:13px;color:var(--ink-dim);margin-top:3px}
+  .pill{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+    padding:4px 8px;border-radius:20px;font-weight:600;white-space:nowrap}
+  .pill.aggro{background:rgba(255,77,94,.14);color:var(--red)}
+  .pill.bench{background:rgba(58,160,255,.14);color:var(--blue)}
+  .pill.cons{background:rgba(58,210,159,.14);color:var(--green)}
+  .legs{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:16px}
+  .leg{background:var(--bg);border:1px solid var(--edge);border-radius:8px;padding:12px 14px}
+  .leg .k{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint)}
+  .leg .v{font-family:var(--mono);font-size:23px;font-weight:600;margin-top:3px}
+  .leg.sell .v{color:var(--amber)} .leg.buy .v{color:var(--blue)}
+  .leg .sub{font-size:11px;color:var(--ink-dim);margin-top:2px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--edge);
+    border:1px solid var(--edge);border-radius:8px;overflow:hidden;margin-bottom:6px}
+  .stat{background:var(--panel);padding:11px 12px}
+  .stat .k{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
+  .stat .v{font-family:var(--mono);font-size:18px;font-weight:600;margin-top:4px}
+  @media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+  /* EV verdict */
+  .ev{margin-top:14px;border-radius:9px;padding:14px 16px;border:1px solid var(--edge);background:var(--bg)}
+  .ev .head{display:flex;align-items:center;gap:10px;margin-bottom:9px}
+  .ev .dot{width:9px;height:9px;border-radius:50%}
+  .ev .verdict{font-family:var(--mono);font-size:12.5px;letter-spacing:.06em;font-weight:600}
+  .ev .bar{position:relative;height:30px;background:var(--panel-2);border-radius:5px;overflow:hidden;margin:10px 0 7px}
+  .ev .bar .pop{position:absolute;top:0;bottom:0;left:0;background:linear-gradient(90deg,rgba(58,210,159,.35),rgba(58,210,159,.18))}
+  .ev .bar .be{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--red)}
+  .ev .bar .belab{position:absolute;top:-17px;transform:translateX(-50%);font-family:var(--mono);font-size:9.5px;color:var(--red);white-space:nowrap}
+  .ev .bar .poplab{position:absolute;top:50%;transform:translateY(-50%);left:9px;font-family:var(--mono);font-size:11px;color:var(--green);font-weight:600}
+  .ev p{font-size:12.5px;color:var(--ink-dim);margin-top:6px}
+  .ev p b{color:var(--ink)}
+  /* defense rail */
+  .railwrap{display:grid;grid-template-columns:118px 1fr;gap:18px;margin-top:16px}
+  @media(max-width:560px){.railwrap{grid-template-columns:1fr}}
+  svg{width:100%;display:block;overflow:visible}
+  .ladder .lvl{display:flex;justify-content:space-between;align-items:baseline;
+    padding:9px 0;border-bottom:1px solid var(--edge)}
+  .ladder .lvl:last-child{border-bottom:none}
+  .ladder .name{font-family:var(--mono);font-size:11px;letter-spacing:.04em}
+  .ladder .px{font-family:var(--mono);font-size:14px;font-weight:600}
+  .ladder .d{font-family:var(--mono);font-size:10px;color:var(--ink-faint);margin-left:6px}
+  .warn{background:rgba(255,77,94,.1);border:1px solid var(--red);border-radius:8px;
+    padding:11px 13px;margin-top:12px;font-size:12.5px;color:#ffb9c0;display:none}
+  .warn.show{display:block}
+  .warn b{color:var(--red)}
+  .vetobanner{background:rgba(155,123,255,.12);border:1px solid var(--violet);border-radius:8px;
+    padding:12px 14px;margin-bottom:16px;display:none;align-items:center;gap:10px}
+  .vetobanner.show{display:flex}
+  .vetobanner .vt{font-family:var(--mono);font-size:12px;letter-spacing:.08em;color:var(--violet);font-weight:600}
+  .note{font-size:11.5px;color:var(--ink-faint);margin-top:18px;line-height:1.6;
+    border-top:1px solid var(--edge);padding-top:14px}
+  .note code{font-family:var(--mono);color:var(--ink-dim)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="eyebrow">Reference · Operator — Base Camp</div>
+      <h1>Matrix Spread Planner <span class="sp">/ credit-spread defense</span></h1>
+    </div>
+    <div class="tag">Track D · SPX weeklies</div>
+  </header>
+
+  <div class="grid">
+    <!-- INPUTS -->
+    <div class="panel">
+      <h2>Setup</h2>
+      <div class="field">
+        <label>Direction</label>
+        <div class="seg side" id="side">
+          <button data-v="put" class="on">Bull · sell put</button>
+          <button data-v="call" class="call">Bear · sell call</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label>SPX spot</label><input type="number" id="spot" value="7511" step="1"></div>
+        <div class="field"><label>8-day EMA</label><input type="number" id="ema8" value="7468" step="1"></div>
+      </div>
+      <div class="field">
+        <label>8 EMA slope</label>
+        <div class="seg" id="slope">
+          <button data-v="rising" class="on">Rising</button>
+          <button data-v="flat">Flat</button>
+          <button data-v="falling">Falling</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field"><label>ATR (daily)</label><input type="number" id="atr" value="65" step="1"></div>
+        <div class="field"><label>DTE</label><input type="number" id="dte" value="6" step="1"></div>
+      </div>
+      <div class="row">
+        <div class="field"><label>Width ($)</label><input type="number" id="width" value="15" step="5"></div>
+        <div class="field"><label>Credit ($)</label><input type="number" id="credit" value="1.05" step="0.05"></div>
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Event window</label>
+        <div class="veto" id="veto"><div class="box"></div><span>FOMC / event veto active</span></div>
+      </div>
+    </div>
+
+    <!-- OUTPUTS -->
+    <div class="panel">
+      <h2>Recommended trade</h2>
+
+      <div class="vetobanner" id="vetobanner">
+        <div class="vt">⚠ ENTRY VETOED</div>
+        <span style="font-size:12.5px;color:var(--ink-dim)">Event inside the window — Base Camp rule sits the trade out. Sizing below is reference only.</span>
+      </div>
+
+      <div class="reco">
+        <div class="delta" id="rdelta">Δ12</div>
+        <div class="meta">
+          <div class="lbl">conviction → delta</div>
+          <div class="why" id="rwhy">—</div>
+        </div>
+        <div class="pill aggro" id="rpill">Aggressive</div>
+      </div>
+
+      <div class="legs">
+        <div class="leg sell"><div class="k" id="sellk">Sell put</div><div class="v" id="sellv">—</div><div class="sub" id="sells">short leg · est.</div></div>
+        <div class="leg buy"><div class="k" id="buyk">Buy put</div><div class="v" id="buyv">—</div><div class="sub" id="buys">long leg · est.</div></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="k">Credit</div><div class="v" id="scredit" style="color:var(--green)">—</div></div>
+        <div class="stat"><div class="k">Max loss</div><div class="v" id="smax" style="color:var(--red)">—</div></div>
+        <div class="stat"><div class="k">Risk : reward</div><div class="v" id="srr">—</div></div>
+        <div class="stat"><div class="k">EV / spread</div><div class="v" id="sev">—</div></div>
+      </div>
+
+      <div class="ev">
+        <div class="head"><div class="dot" id="evdot"></div><div class="verdict" id="evverdict">—</div></div>
+        <div class="bar">
+          <div class="pop" id="evpop"></div>
+          <div class="poplab" id="evpoplab">POP —</div>
+          <div class="be" id="evbe"></div>
+          <div class="belab" id="evbelab">breakeven —</div>
+        </div>
+        <p id="evtext">—</p>
+      </div>
+
+      <h2 style="margin-top:22px">Defense ladder <span style="color:var(--ink-faint);text-transform:none;letter-spacing:0;font-family:var(--sans)">— recomputed from short + ATR</span></h2>
+      <div class="railwrap">
+        <svg id="rail" viewBox="0 0 118 300" preserveAspectRatio="none" height="300"></svg>
+        <div class="ladder" id="ladder"></div>
+      </div>
+      <div class="warn" id="warn"></div>
+
+      <div class="note">
+        Strikes are an expected-move estimate (<code>σ = ATR·√DTE</code>, Δ-z of 1.18/1.28/1.40) — validate against the live chain, don't replace it. Defense lines are anchored at <code>1·ATR</code> (must-defend) and <code>2·ATR</code> (ok-defend) from the short, toward spot, so they can never go stale or land on the wrong side of price. Delta follows bias <i>strength</i>: trend-aligned, high-conviction setups earn the closer/richer Δ12; fighting the tape steps you out to Δ8.
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const S = {side:'put', slope:'rising', veto:false};
+const $ = id => document.getElementById(id);
+const num = id => parseFloat($(id).value)||0;
+const r5 = x => Math.round(x/5)*5;
+const Z = {12:1.175, 10:1.282, 8:1.405};
+
+// segmented controls
+function seg(wrap, key, cb){
+  $(wrap).querySelectorAll('button').forEach(b=>b.onclick=()=>{
+    $(wrap).querySelectorAll('button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); S[key]=b.dataset.v; if(cb)cb(); calc();
+  });
+}
+seg('side','side',()=>{
+  const isCall = S.side==='call';
+  $('side').querySelectorAll('button').forEach(b=>b.classList.toggle('call', isCall && b.dataset.v==='call'));
+});
+seg('slope','slope');
+$('veto').onclick=()=>{S.veto=!S.veto;$('veto').classList.toggle('on',S.veto);$('veto').querySelector('.box').textContent=S.veto?'✕':'';calc();};
+['spot','ema8','atr','dte','width','credit'].forEach(id=>$(id).addEventListener('input',calc));
+
+function biasStrength(){
+  const ext = (num('spot')-num('ema8'))/Math.max(num('atr'),1); // ATRs above EMA (signed)
+  let s = 50;
+  if(S.side==='put'){            // bullish: short put safe if price holds up
+    if(S.slope==='rising') s+=25; else if(S.slope==='falling') s-=25;
+    if(ext>=0) s+=15;                         // riding above EMA = trend support intact
+    else if(ext<=-1.5) s-=15;                 // stretched below flattening EMA = counter-trend bounce bet
+    else s-=5;
+  } else {                       // bearish: short call safe if price holds down
+    if(S.slope==='falling') s+=20; else if(S.slope==='rising') s-=25; else s+=5;
+    if(ext>=1.5) s+= (S.slope==='rising' ? -10 : 20);  // stretched above: fade if not rising, risky if rising
+    else if(ext<0) s+=10;                              // already below EMA = bearish continuation
+  }
+  return Math.max(0,Math.min(100,s));
+}
+
+function calc(){
+  const spot=num('spot'), atr=num('atr'), dte=num('dte'), width=num('width'), credit=num('credit');
+  const sigma = atr*Math.sqrt(Math.max(dte,0.25));
+  const isPut = S.side==='put';
+
+  // delta from conviction
+  const bs = biasStrength();
+  const delta = bs>=66?12 : bs>=34?10 : 8;
+  const pill = bs>=66?['aggro','Aggressive'] : bs>=34?['bench','Benchmark'] : ['cons','Conservative'];
+  $('rdelta').textContent='Δ'+delta;
+  $('rpill').className='pill '+pill[0]; $('rpill').textContent=pill[1];
+
+  const z=Z[delta];
+  const short = r5(isPut ? spot - z*sigma : spot + z*sigma);
+  const long  = isPut ? short - width : short + width;
+
+  // labels
+  $('sellk').textContent = isPut?'Sell put':'Sell call';
+  $('buyk').textContent  = isPut?'Buy put':'Buy call';
+  $('sellv').textContent = short.toLocaleString();
+  $('buyv').textContent  = long.toLocaleString();
+  $('sells').textContent = 'short leg · Δ'+delta+' est.';
+  $('buys').textContent  = 'long leg · '+width+' wide';
+
+  // conviction reasoning
+  const ext=((spot-num('ema8'))/Math.max(atr,1));
+  const extStr=(ext>=0?'+':'')+ext.toFixed(1)+' ATR vs 8 EMA';
+  let why;
+  if(isPut){
+    why = S.slope==='rising' && ext>=0 ? 'Above a rising 8 EMA — trend support intact ('+extStr+'). High-conviction bull; sit closer for richer credit.'
+        : S.slope==='falling' ? 'Below a falling 8 EMA — selling puts into a downtrend ('+extStr+'). Low conviction; step out, let distance de-risk.'
+        : 'Mixed bias ('+extStr+'). Benchmark sizing — no edge to press.';
+  } else {
+    why = ext>=1.5 && S.slope!=='rising' ? 'Stretched '+extStr+' above a flat/rolling EMA — clean fade. Press the closer strike.'
+        : S.slope==='rising' ? 'Near/above a rising 8 EMA — fighting the uptrend ('+extStr+'). Low conviction; step out to Δ8.'
+        : 'Mixed bias ('+extStr+'). Benchmark sizing.';
+  }
+  $('rwhy').textContent=why;
+
+  // economics
+  const collected=credit*100, maxLoss=(width-credit)*100;
+  const rr=(width-credit)/credit, beWR=(width-credit)/width, pop=1-delta/100;
+  const ev = pop*collected - (1-pop)*maxLoss;
+  $('scredit').textContent='$'+collected.toFixed(0);
+  $('smax').textContent='-$'+maxLoss.toFixed(0);
+  $('srr').textContent='1 : '+rr.toFixed(1);
+  $('sev').textContent=(ev>=0?'+$':'-$')+Math.abs(ev).toFixed(0);
+  $('sev').style.color = ev>=0?'var(--green)':'var(--red)';
+
+  // EV verdict bar
+  $('evpop').style.width=(pop*100)+'%';
+  $('evpoplab').textContent='POP '+(pop*100).toFixed(0)+'%';
+  $('evbe').style.left=(beWR*100)+'%';
+  $('evbelab').style.left=(beWR*100)+'%';
+  $('evbelab').textContent='breakeven '+(beWR*100).toFixed(1)+'%';
+  const gap=(beWR-pop)*100;
+  if(gap>0){
+    $('evdot').style.background='var(--amber)';
+    $('evverdict').textContent='NEGATIVE EV AT ENTRY';$('evverdict').style.color='var(--amber)';
+    $('evtext').innerHTML='Hold-to-expiry win rate is <b>'+(pop*100).toFixed(0)+'%</b> but breakeven needs <b>'+(beWR*100).toFixed(1)+'%</b> — a <b>'+gap.toFixed(1)+'-pt gap the defense must earn back</b>. The entry doesn\'t pay; managing the loser is the edge. This is structural to every $'+credit.toFixed(2)+'-on-$'+width+' Matrix spread.';
+  } else {
+    $('evdot').style.background='var(--green)';
+    $('evverdict').textContent='POSITIVE EV AT ENTRY';$('evverdict').style.color='var(--green)';
+    $('evtext').innerHTML='POP <b>'+(pop*100).toFixed(0)+'%</b> clears the <b>'+(beWR*100).toFixed(1)+'%</b> breakeven — rare for this credit/width. Confirm the credit is real on the chain before trusting it.';
+  }
+
+  // defense ladder (ATR-anchored, toward spot)
+  const must = r5(isPut ? short + atr : short - atr);
+  const ok   = r5(isPut ? short + 2*atr : short - 2*atr);
+  const dATR = lvl => (Math.abs(lvl-short)/Math.max(atr,1)).toFixed(1)+' ATR';
+  const rows=[
+    {n:'Spot', px:spot, c:'var(--ink)', d:'now'},
+    {n:'OK to defend', px:ok, c:'var(--amber)', d:dATR(ok)+' off short'},
+    {n:'MUST defend', px:must, c:'var(--red)', d:dATR(must)+' off short'},
+    {n:'Short ('+(isPut?'put':'call')+')', px:short, c:'var(--violet)', d:'line in the sand'},
+    {n:'Long', px:long, c:'var(--blue)', d:width+' wide'},
+  ];
+  // order top->bottom by price desc for puts, asc for calls handled by sort
+  rows.sort((a,b)=> isPut ? b.px-a.px : a.px-b.px);
+  $('ladder').innerHTML = rows.map(r=>
+    `<div class="lvl"><span class="name" style="color:${r.c}">${r.n}</span>
+     <span><span class="px" style="color:${r.c}">${r.px.toLocaleString()}</span><span class="d">${r.d}</span></span></div>`).join('');
+
+  drawRail(rows, spot, isPut);
+
+  // coherence guard — the 19-May failure
+  const incoherent = isPut ? (ok>=spot || must>=spot) : (ok<=spot || must<=spot);
+  const w=$('warn');
+  if(incoherent){
+    w.className='warn show';
+    w.innerHTML='<b>Defense line on the wrong side of spot.</b> A '+(isPut?'downside':'upside')+' defense level can\'t sit '+(isPut?'above':'below')+' current price — your ATR is too small for this spot-to-short distance, or the short is too close. Widen the short or re-check ATR. (This is the 19-May "7400 above 7373" drift, caught at the source.)';
+  } else w.className='warn';
+
+  // veto
+  $('vetobanner').classList.toggle('show',S.veto);
+}
+
+function drawRail(rows, spot, isPut){
+  const H=300, pad=18;
+  const px = rows.map(r=>r.px);
+  const max=Math.max(...px), min=Math.min(...px), span=(max-min)||1;
+  const y = p => pad + (max-p)/span*(H-2*pad);
+  let svg='';
+  // zone fills between consecutive levels
+  const zoneColors = isPut
+    ? ['rgba(58,210,159,.16)','rgba(255,176,46,.16)','rgba(255,77,94,.16)','rgba(255,77,94,.28)']
+    : ['rgba(58,210,159,.16)','rgba(255,176,46,.16)','rgba(255,77,94,.16)','rgba(255,77,94,.28)'];
+  for(let i=0;i<rows.length-1;i++){
+    const y1=y(rows[i].px), y2=y(rows[i+1].px);
+    svg+=`<rect x="40" y="${Math.min(y1,y2)}" width="58" height="${Math.abs(y2-y1)}" fill="${zoneColors[i]||'transparent'}"/>`;
+  }
+  // axis
+  svg+=`<line x1="40" y1="${pad}" x2="40" y2="${H-pad}" stroke="var(--edge)" stroke-width="1"/>`;
+  rows.forEach(r=>{
+    const yy=y(r.px);
+    svg+=`<line x1="34" y1="${yy}" x2="98" y2="${yy}" stroke="${r.c}" stroke-width="${r.n.startsWith('Short')?2:1.4}" ${r.n==='OK to defend'||r.n==='MUST defend'?'stroke-dasharray="4 3"':''}/>`;
+    svg+=`<circle cx="40" cy="${yy}" r="3.2" fill="${r.c}"/>`;
+    svg+=`<text x="30" y="${yy+3.5}" text-anchor="end" font-family="IBM Plex Mono" font-size="9" fill="${r.c}">${r.px.toLocaleString()}</text>`;
+  });
+  $('rail').innerHTML=svg;
+}
+
+calc();
+</script>
+</body>
+</html>
